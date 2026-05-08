@@ -1,0 +1,80 @@
+{
+  "name": "@robeasthope/markdownlint-config",
+  "version": "1.1.1",
+  "description": "Shared markdownlint configuration for consistent Markdown formatting",
+  "keywords": [
+    "markdownlint",
+    "markdown",
+    "linting",
+    "formatting",
+    "code-quality",
+    "style-guide"
+  ],
+  "homepage": "https://github.com/acme-skunkworks/markdownlint-config#readme",
+  "bugs": {
+    "url": "https://github.com/acme-skunkworks/markdownlint-config/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acme-skunkworks/markdownlint-config.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Rob Easthope",
+    "url": "https://github.com/RobEasthope"
+  },
+  "main": ".markdownlint.json",
+  "files": [
+    ".markdownlint.json",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "rimraf node_modules",
+    "format": "npx prettier --write .",
+    "lint": "pnpm run lint:md",
+    "lint:md": "markdownlint-cli2 '**/*.{md,mdx}' '!**/node_modules/**' '!**/dist/**' '!**/.turbo/**' '!**/.astro/**'",
+    "lint:md:fix": "markdownlint-cli2 --fix '**/*.{md,mdx}' '!**/node_modules/**' '!**/dist/**' '!**/.turbo/**' '!**/.astro/**'",
+    "lint:workflows": "actionlint",
+    "lint:yaml": "yamllint .",
+    "prepare": "husky",
+    "release": "changeset publish",
+    "release:manual": "npm publish --access public --provenance=false",
+    "release:manual:dry": "npm publish --access public --provenance=false --dry-run",
+    "sort-pkg-json": "sort-package-json",
+    "version": "changeset version"
+  },
+  "lint-staged": {
+    "**/*": [
+      "prettier --write --ignore-unknown"
+    ],
+    "**/package.json": [
+      "bash -c 'sort-package-json \"$@\" || true' --"
+    ],
+    "**/*.{md,mdx}": [
+      "bash -c 'markdownlint-cli2 --fix --config ./.markdownlint-cli2.jsonc \"$@\" || true' --"
+    ],
+    "**/*.{yml,yaml}": [
+      "bash -c 'if command -v yamllint >/dev/null 2>&1; then yamllint \"$@\"; elif [ \"$(uname -s)\" = \"Darwin\" ]; then echo \"⚠️  yamllint not installed — skipping. Install with: brew install yamllint\"; else echo \"⚠️  yamllint not installed — skipping. Install with: pip install --user yamllint==1.37.1\"; fi' --"
+    ],
+    ".github/workflows/*.{yml,yaml}": [
+      "bash -c 'if command -v actionlint >/dev/null 2>&1; then actionlint \"$@\"; elif [ \"$(uname -s)\" = \"Darwin\" ]; then echo \"⚠️  actionlint not installed — skipping. Install with: brew install actionlint\"; else echo \"⚠️  actionlint not installed — skipping. Install via: bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.5/scripts/download-actionlint.bash)\"; fi' --"
+    ]
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "markdownlint-cli2": "^0.18.1",
+    "prettier": "^3.8.3",
+    "rimraf": "^6.0.1",
+    "sort-package-json": "^3.6.1"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
