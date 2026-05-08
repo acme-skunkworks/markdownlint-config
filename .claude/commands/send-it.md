@@ -131,7 +131,7 @@ Versioning lives in [Changesets](https://github.com/changesets/changesets). `/se
 
    ```markdown
    ---
-   "@robeasthope/markdownlint-config": patch
+   "@acme-skunkworks/markdownlint-config": patch
    ---
 
    One-line user-facing summary of the change.
@@ -220,7 +220,7 @@ $ARGUMENTS
 - **Trunk-based:** PRs target `main`.
 - **Idempotent:** running `/send-it` again updates the existing changeset and PR.
 - **`/send-it` does not bump versions or write `CHANGELOG.md`.** The `changesets/action` workflow on `main` handles version bumps, CHANGELOG generation, npm publish, and release tagging.
-- **Single-package repo.** Changeset frontmatter always names `@robeasthope/markdownlint-config`. If this repo ever splits into multiple packages, the derive script needs an updated affected-package detector.
+- **Single-package repo.** Changeset frontmatter always names `@acme-skunkworks/markdownlint-config`. If this repo ever splits into multiple packages, the derive script needs an updated affected-package detector.
 - **Linear `In Review` writeback** runs after PR creation/update. Linked issues in Triage/Backlog/Todo/In Progress are transitioned; already-In-Review and Done/Canceled/Duplicate are skipped. Re-runs are idempotent.
 
 ## Steps Summary

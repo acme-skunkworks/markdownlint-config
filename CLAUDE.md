@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repo
 
-Standalone home for `@robeasthope/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration. **The published artifact is `.markdownlint.json` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSON directly via `markdownlint-cli2`.
+Standalone home for `@acme-skunkworks/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration. **The published artifact is `.markdownlint.json` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSON directly via `markdownlint-cli2`.
 
 ## Commands
 
@@ -53,7 +53,7 @@ There are two release modes — know which one you're in.
 Once the package's Trusted Publisher mapping points at this repo's `release.yml`, every release flows through CI:
 
 1. Make changes on a feature branch; `/send-it` bundles, writes `.changeset/<slug>.md`, pushes, opens a PR. CI (`.github/workflows/ci.yml`) runs lint/changeset-status on the PR.
-2. After merge, `changesets/action` (`.github/workflows/release.yml`) opens a "release: version packages" PR; the post-step retitles it to `@robeasthope/markdownlint-config@<version>`.
+2. After merge, `changesets/action` (`.github/workflows/release.yml`) opens a "release: version packages" PR; the post-step retitles it to `@acme-skunkworks/markdownlint-config@<version>`.
 3. Merging that PR triggers publish: npm via OIDC Trusted Publishing (no token, no OTP) + provenance attestation on the npm artifact. **No GitHub Packages publish** — this package is npm-only.
 
 Don't reintroduce `NPM_TOKEN` **as a CI secret** unless OIDC is verified broken. The local `.env`-based `NPM_TOKEN` is a different concern — it's for laptop-driven publishes only, never CI.
@@ -62,7 +62,7 @@ Don't reintroduce `NPM_TOKEN` **as a CI secret** unless OIDC is verified broken.
 
 ```markdown
 ---
-"@robeasthope/markdownlint-config": <patch|minor|major>
+"@acme-skunkworks/markdownlint-config": <patch|minor|major>
 ---
 
 <body>
@@ -93,7 +93,7 @@ Don't try `pnpm run release:manual -- --dry-run`. The chained-script + `--` sepa
 
 ## Bootstrap publish — read this when setting up a new package
 
-> **Not directly applicable to this repo.** `@robeasthope/markdownlint-config` already exists on npm (last published v1.1.1 from protomolecule), so the only manual step here is updating the Trusted Publisher mapping on `npmjs.com/package/@robeasthope/markdownlint-config/access` to point at this repo's `release.yml`. The notes below are kept verbatim as institutional knowledge for the next sibling extraction (e.g. the next package pulled out of protomolecule).
+> **Directly applicable to this repo's first publish.** `@acme-skunkworks/markdownlint-config` is a brand-new npm package (the predecessor `@robeasthope/markdownlint-config@1.1.1` was published from `RobEasthope/protomolecule` and continues to exist on npm under that old name — but at the new scope this is a fresh package, so npm's first-publish 2FA enforcement applies). Follow the sequence below for the v2.0.0 publish from this repo.
 
 The very first publish of a brand-new npm package **cannot go through CI**. Two reasons that compound:
 
@@ -142,8 +142,8 @@ Recovery codes are the answer because they're the only OTP-shaped value an npm a
 
 ## OIDC Trusted Publisher
 
-The Trusted Publisher mapping on npm is what makes the OIDC publish work without an `NPM_TOKEN`. After this repo's first CI publish:
+The Trusted Publisher mapping on npm is what makes the OIDC publish work without an `NPM_TOKEN`. The mapping is configured **after** the manual bootstrap publish (the npmjs.com Trusted Publisher form is unreachable until the package exists on the registry — see "Bootstrap publish" above):
 
-- `@robeasthope/markdownlint-config`'s Trusted Publisher must point at `acme-skunkworks/markdownlint-config` → workflow `release.yml`, environment blank.
-- The mapping was previously configured against `RobEasthope/protomolecule` (when the package shipped from there). It must be updated **before** the first CI publish from this repo, or the publish step fails with an OIDC mismatch.
-- Update path: log into npmjs.com → `npmjs.com/package/@robeasthope/markdownlint-config/access` → GitHub Actions section → edit the publisher.
+- After v2.0.0 lands on npm via the manual recovery-code bootstrap, configure the Trusted Publisher: `npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow `release.yml`, environment blank.
+- From the next changeset onward, releases ride CI/OIDC with provenance attestation — no token, no OTP, no recovery codes.
+- Note: the legacy `@robeasthope/markdownlint-config` on npm still has its own Trusted Publisher mapping pointing at `RobEasthope/protomolecule`. That's a different package and its TP setup is independent — leave it alone.

@@ -1,15 +1,15 @@
-# @robeasthope/markdownlint-config
+# @acme-skunkworks/markdownlint-config
 
 Shared markdownlint configuration for consistent Markdown formatting across projects.
 
 ## 📦 Installation
 
 ```bash
-npm install --save-dev @robeasthope/markdownlint-config
+npm install --save-dev @acme-skunkworks/markdownlint-config
 # or
-pnpm add -D @robeasthope/markdownlint-config
+pnpm add -D @acme-skunkworks/markdownlint-config
 # or
-yarn add -D @robeasthope/markdownlint-config
+yarn add -D @acme-skunkworks/markdownlint-config
 ```
 
 ## 🚀 Usage
@@ -21,7 +21,7 @@ Create a `.markdownlint-cli2.jsonc` file in your project root:
 ```jsonc
 {
   "config": {
-    "extends": "@robeasthope/markdownlint-config",
+    "extends": "@acme-skunkworks/markdownlint-config",
   },
   "globs": ["**/*.{md,mdx}", "!**/node_modules/**", "!**/dist/**"],
 }
@@ -33,7 +33,7 @@ Create or update `.markdownlint.json`:
 
 ```json
 {
-  "extends": "@robeasthope/markdownlint-config"
+  "extends": "@acme-skunkworks/markdownlint-config"
 }
 ```
 
@@ -45,7 +45,7 @@ Add to your `package.json`:
 {
   "markdownlint-cli2": {
     "config": {
-      "extends": "@robeasthope/markdownlint-config"
+      "extends": "@acme-skunkworks/markdownlint-config"
     },
     "globs": ["**/*.{md,mdx}"]
   }
@@ -82,7 +82,7 @@ Override specific rules by extending the configuration:
 ```jsonc
 {
   "config": {
-    "extends": "@robeasthope/markdownlint-config",
+    "extends": "@acme-skunkworks/markdownlint-config",
     "MD013": { "line_length": 100 }, // Enable line length with custom limit
     "MD033": false, // Disable inline HTML
   },

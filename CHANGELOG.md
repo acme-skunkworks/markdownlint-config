@@ -1,4 +1,4 @@
-# @robeasthope/markdownlint-config
+# @acme-skunkworks/markdownlint-config
 
 ## 1.1.1
 
