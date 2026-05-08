@@ -1,0 +1,1 @@
+# @robeasthope/markdownlint-config
