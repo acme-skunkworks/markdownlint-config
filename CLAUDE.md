@@ -93,7 +93,7 @@ Don't try `pnpm run release:manual -- --dry-run`. The chained-script + `--` sepa
 
 ## Bootstrap publish — read this when setting up a new package
 
-> **Directly applicable to this repo's first publish.** `@acme-skunkworks/markdownlint-config` is a brand-new npm package (the predecessor `@robeasthope/markdownlint-config@1.1.1` was published from `RobEasthope/protomolecule` and continues to exist on npm under that old name — but at the new scope this is a fresh package, so npm's first-publish 2FA enforcement applies). Follow the sequence below for the v2.0.0 publish from this repo.
+> **Directly applicable to this repo's first publish.** `@acme-skunkworks/markdownlint-config` is a brand-new npm package (the predecessor `@robeasthope/markdownlint-config@1.1.1` was published from `RobEasthope/protomolecule` and continues to exist on npm under that old name — but at the new scope this is a fresh package, so npm's first-publish 2FA enforcement applies). Follow the sequence below for the v1.0.0 publish from this repo.
 
 The very first publish of a brand-new npm package **cannot go through CI**. Two reasons that compound:
 
@@ -144,6 +144,6 @@ Recovery codes are the answer because they're the only OTP-shaped value an npm a
 
 The Trusted Publisher mapping on npm is what makes the OIDC publish work without an `NPM_TOKEN`. The mapping is configured **after** the manual bootstrap publish (the npmjs.com Trusted Publisher form is unreachable until the package exists on the registry — see "Bootstrap publish" above):
 
-- After v2.0.0 lands on npm via the manual recovery-code bootstrap, configure the Trusted Publisher: `npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow `release.yml`, environment blank.
+- After v1.0.0 lands on npm via the manual recovery-code bootstrap, configure the Trusted Publisher: `npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow `release.yml`, environment blank.
 - From the next changeset onward, releases ride CI/OIDC with provenance attestation — no token, no OTP, no recovery codes.
 - Note: the legacy `@robeasthope/markdownlint-config` on npm still has its own Trusted Publisher mapping pointing at `RobEasthope/protomolecule`. That's a different package and its TP setup is independent — leave it alone.

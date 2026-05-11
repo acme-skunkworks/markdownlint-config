@@ -22,6 +22,7 @@ This command intentionally does NOT run lint, typecheck, tests, or format checks
 
 - `gh` CLI installed and authenticated (`gh auth status`).
 - `pnpm install` has been run; `@changesets/cli` is wired up and `pnpm changeset status` works.
+- **Optional:** Linear MCP server configured locally (used by step 8 to transition the linked issue to "In Review"). Without it, the Linear lookups silently no-op and the rest of the command still runs — the PR opens, but no Linear status update happens.
 
 ## Process
 
