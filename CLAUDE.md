@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repo
 
-Standalone home for `@acme-skunkworks/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration. **The published artifact is `.markdownlint.json` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSON directly via `markdownlint-cli2`.
+Standalone home for `@acme-skunkworks/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration. **The published artifact is `.markdownlint.jsonc` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSONC directly via `markdownlint-cli2`, whose parser stack handles the inline per-rule rationale comments. Bare `markdownlint` with `JSON.parse` would reject the comments — call this out if/when a non-cli2 consumer surfaces.
 
 ## Commands
 

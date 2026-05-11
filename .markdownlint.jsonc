@@ -1,0 +1,52 @@
+// @acme-skunkworks/markdownlint-config
+//
+// Philosophy: strict on structure (headings, lists, links, tables),
+// lenient on prose (line length, inline HTML, fence-language tags).
+//
+// Rationale lives next to each non-default rule — keep them in sync.
+// `"default": true` enables every other rule with its stock options;
+// only non-default decisions are enumerated below.
+//
+// Audited 2026-05-11 against markdownlint-cli2 ^0.22.1 (markdownlint 0.40.0).
+// Consume via markdownlint-cli2 — its parser stack handles JSONC; bare
+// markdownlint with `JSON.parse` will reject the comments.
+{
+  "default": true,
+
+  // MD003 — ATX-style headings (`# Heading`) only, not Setext (`Heading\n===`).
+  // ATX reads better in raw markdown and is easier to manipulate programmatically.
+  "MD003": { "style": "atx" },
+
+  // MD007 — Nested unordered lists indent by 2 spaces. Matches Prettier's default,
+  // so `markdownlint --fix` and `prettier --write` don't fight each other.
+  "MD007": { "indent": 2 },
+
+  // MD013 — Disabled. Line length is a prose concern; editors handle wrapping.
+  // Enforcing a column count creates friction in long URLs, tables, and
+  // reference-link definitions without delivering proportional value.
+  "MD013": false,
+
+  // MD024 — Allow repeated heading text across non-sibling sections.
+  // Changelogs (repeated "### Patch Changes" under each version) and API docs
+  // (per-class "## Methods") legitimately reuse headings — only flag duplicates
+  // within the same parent.
+  "MD024": { "siblings_only": true },
+
+  // MD029 — Ordered-list items numbered sequentially (1. 2. 3.), not all-ones.
+  // Sequential numbering reads correctly in raw markdown and in plain-text diffs.
+  "MD029": { "style": "ordered" },
+
+  // MD033 — Disabled. MDX routinely embeds JSX/HTML; gating with `allowed_elements`
+  // would churn whenever a new component is introduced. Trust the author.
+  "MD033": false,
+
+  // MD040 — Disabled. Fence-language tags are recommended but not required.
+  // Re-disabled in upstream protomolecule PR #345 after enforcement created
+  // friction with pseudo-code blocks and verbatim CLI output samples.
+  "MD040": false,
+
+  // MD041 — Disabled. Fragment/partial markdown files (designed to be embedded
+  // into a larger document) don't always start with an H1. Forcing one breaks
+  // composition.
+  "MD041": false,
+}

@@ -37,6 +37,8 @@ Create or update `.markdownlint.json`:
 }
 ```
 
+> **Note** — Resolving `extends` through this path requires **`markdownlint-cli2`** (its parser stack handles the JSONC comments in the published config). The bare `markdownlint` library or `markdownlint-cli` will try `JSON.parse` on the resolved file and reject the comments. If you're not using cli2, use Option 1 above or copy the rules inline.
+
 ### Option 3: Package.json Configuration
 
 Add to your `package.json`:
@@ -52,28 +54,40 @@ Add to your `package.json`:
 }
 ```
 
+## 🎯 Philosophy
+
+**Strict on structure, lenient on prose.**
+
+Markdown is two things at once — the structural skeleton of a document (headings, lists, links, tables) and the prose that fills it. This config enforces the first and steps out of the way of the second:
+
+- **Structural rules are enabled.** Headings, list numbering, link references, table shape, blank-line conventions around fences and tables — all enforced. These are cheap to get right and the diff noise from violations is high.
+- **Prose rules are relaxed.** Line length, inline HTML/JSX, fence-language tags, and first-line-heading requirements are off. These create friction in real-world authoring (long URLs in tables, MDX components, plaintext CLI output, fragment files) without delivering proportional value.
+
+Each non-default decision in `.markdownlint.jsonc` carries an inline rationale — read it for the "why" before tweaking a rule downstream.
+
 ## 📝 Configuration Details
 
-This configuration enforces consistent Markdown formatting with sensible defaults:
+Built on `"default": true` (every markdownlint rule enabled at stock options) with the following non-default decisions:
 
-### Enabled Rules
+### Configured rules
 
-- **MD003**: ATX-style headings (`# Heading`)
-- **MD007**: Unordered list indentation (2 spaces)
-- **Default rules**: All standard markdownlint rules enabled by default
+- **MD003** — ATX-style headings (`# Heading`), not Setext (`Heading\n===`).
+- **MD007** — Nested unordered lists indent by 2 spaces (matches Prettier).
+- **MD024** — Repeated heading text allowed across non-siblings (`siblings_only`) — changelogs and per-section API docs need this.
+- **MD029** — Ordered lists numbered sequentially (`1. 2. 3.`), not all-ones.
 
-### Disabled Rules
+### Disabled rules
 
-- **MD013**: Line length (disabled for flexibility)
-- **MD024**: Multiple headings with same content (only enforced for siblings)
-- **MD029**: Ordered list item prefix (flexible numbering)
-- **MD031**: Fenced code blocks surrounded by blank lines (disabled)
-- **MD033**: Inline HTML (allowed)
-- **MD034**: Bare URL detection (disabled)
-- **MD036**: Emphasis as heading (disabled)
-- **MD040**: Fenced code language tag (disabled for authoring flexibility)
-- **MD041**: First line heading requirement (disabled)
-- **MD051**: Link fragments (disabled)
+- **MD013** (line length) — prose concern; editors handle wrapping.
+- **MD033** (inline HTML) — MDX embeds JSX routinely.
+- **MD040** (fence language) — friction with pseudo-code and CLI output samples.
+- **MD041** (first-line H1) — breaks fragment/partial files designed for embedding.
+
+### Notably enabled (formerly disabled)
+
+These were off in v1.0 (carried over from `protomolecule`) and have been re-enabled — `markdownlint --fix` resolves all of them mechanically:
+
+- **MD031** (blank lines around fences), **MD034** (bare URLs), **MD036** (emphasis-as-heading), **MD051** (link fragments — fragment resolution improved in `markdownlint` 0.40), **MD052/053** (reference link/image hygiene), **MD056/058** (table column count, blank lines around tables).
 
 ## 🛠️ Customization
 
@@ -83,8 +97,8 @@ Override specific rules by extending the configuration:
 {
   "config": {
     "extends": "@acme-skunkworks/markdownlint-config",
-    "MD013": { "line_length": 100 }, // Enable line length with custom limit
-    "MD033": false, // Disable inline HTML
+    "MD013": { "line_length": 100 }, // Re-enable line length with a 100-char limit (off in base).
+    "MD041": true, // Re-enable first-line-H1 requirement (off in base — flip it on for top-level docs).
   },
 }
 ```
@@ -135,19 +149,11 @@ For detailed rule documentation, see:
 - [Markdownlint Rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
 - [Markdownlint CLI2](https://github.com/DavidAnson/markdownlint-cli2)
 
-## 🎯 Philosophy
-
-This configuration aims to:
-
-1. **Enforce consistency** in heading styles and list formatting
-2. **Allow flexibility** in line length and HTML usage for documentation needs
-3. **Stay unobtrusive** by disabling overly strict rules
-
 ## 📁 Package Structure
 
 ```text
 .
-├── .markdownlint.json      # Shared configuration
+├── .markdownlint.jsonc     # Shared configuration (with inline per-rule rationale)
 ├── package.json
 └── README.md
 ```
