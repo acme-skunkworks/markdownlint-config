@@ -1,6 +1,6 @@
 {
   "config": {
-    "extends": "./.markdownlint.json",
+    "extends": "./.markdownlint.jsonc",
   },
   "globs": ["**/*.{md,mdx}", "!**/node_modules/**", "!**/dist/**"],
 }
