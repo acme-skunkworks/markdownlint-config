@@ -1,6 +1,8 @@
 ---
-"@acme-skunkworks/markdownlint-config": minor
+"@acme-skunkworks/markdownlint-config": major
 ---
+
+**Breaking change for consumers.** Re-enabling MD031/MD034/MD036/MD051, switching MD029 from off to `style: "ordered"`, and adding the new cli2 0.22 rules (MD052/053/056/058) will fire on existing markdown that previously passed. Cutting to `2.0.0` so the strictness increase is opted into via a deliberate bump rather than surprise-shipped to `^1.0.0` pinners on next `pnpm install`.
 
 Audit and adjust the inherited rule set; convert config to `.markdownlint.jsonc` with inline per-rule rationale (ASW-92).
 

@@ -37,6 +37,8 @@ Create or update `.markdownlint.json`:
 }
 ```
 
+> **Note** — Resolving `extends` through this path requires **`markdownlint-cli2`** (its parser stack handles the JSONC comments in the published config). The bare `markdownlint` library or `markdownlint-cli` will try `JSON.parse` on the resolved file and reject the comments. If you're not using cli2, use Option 1 above or copy the rules inline.
+
 ### Option 3: Package.json Configuration
 
 Add to your `package.json`:
@@ -95,8 +97,8 @@ Override specific rules by extending the configuration:
 {
   "config": {
     "extends": "@acme-skunkworks/markdownlint-config",
-    "MD013": { "line_length": 100 }, // Enable line length with custom limit
-    "MD033": false, // Disable inline HTML
+    "MD013": { "line_length": 100 }, // Re-enable line length with a 100-char limit (off in base).
+    "MD041": true, // Re-enable first-line-H1 requirement (off in base — flip it on for top-level docs).
   },
 }
 ```
