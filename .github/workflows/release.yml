@@ -32,32 +32,26 @@ jobs:
         with:
           run_install: false
 
-      - name: 🟢 Setup Node.js
+      - name: 🟢 Setup Node.js (npm registry)
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          # Intentionally no `registry-url:` — it writes an .npmrc with a
-          # `_authToken=${NODE_AUTH_TOKEN}` line and exports NPM_CONFIG_USERCONFIG,
-          # which short-circuits npm's OIDC Trusted Publishing code path. The
-          # default registry (registry.npmjs.org) is already what we publish to.
+          # `registry-url:` is required even for OIDC Trusted Publishing.
+          # setup-node writes an .npmrc with `registry=…` AND
+          # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` plus exports
+          # NODE_AUTH_TOKEN=XXXXX-XXXXX-XXXXX-XXXXX as a placeholder. Since we
+          # don't override NODE_AUTH_TOKEN on the publish step, npm CLI 11.5+
+          # recognises the unresolved placeholder, treats the registry as
+          # unauthenticated, and engages OIDC TP. Removing this line drops the
+          # `registry=` config too and OIDC TP silently never starts (ENEEDAUTH).
 
       - name: ⬆️ Upgrade npm for Trusted Publishing
-        # npm Trusted Publishing requires npm CLI v11.5.1+; Node 22 still ships
-        # npm 10.x. The bundled npm 10.9.7 in the ubuntu-latest runner image is
-        # broken on self-upgrade (`Cannot find module 'promise-retry'`), so we
-        # install via pnpm. pnpm's globally-installed bins live under its own
-        # global root (returned by `pnpm bin -g`), NOT directly in PNPM_HOME, so
-        # we must append that path to GITHUB_PATH explicitly — otherwise the
-        # system npm 10.x wins on PATH resolution and OIDC TP never engages.
-        run: |
-          pnpm add -g npm@latest
-          pnpm bin -g >> "$GITHUB_PATH"
-
-      - name: 🔍 Verify npm version (must be ≥ 11.5.1 for OIDC TP)
-        run: |
-          echo "resolved npm: $(which npm)"
-          npm --version
+        # npm Trusted Publishing requires npm CLI v11.5.1+.
+        # The bundled npm 10.9.7 in the ubuntu-latest runner image is broken on
+        # self-upgrade (`Cannot find module 'promise-retry'`), so install via pnpm
+        # — PNPM_HOME is already on PATH, so the new npm shadows the bundled one.
+        run: pnpm add -g npm@latest
 
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
