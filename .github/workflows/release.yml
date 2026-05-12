@@ -43,11 +43,21 @@ jobs:
           # default registry (registry.npmjs.org) is already what we publish to.
 
       - name: ⬆️ Upgrade npm for Trusted Publishing
-        # npm Trusted Publishing requires npm CLI v11.5.1+.
-        # The bundled npm 10.9.7 in the ubuntu-latest runner image is broken on
-        # self-upgrade (`Cannot find module 'promise-retry'`), so install via pnpm
-        # — PNPM_HOME is already on PATH, so the new npm shadows the bundled one.
-        run: pnpm add -g npm@latest
+        # npm Trusted Publishing requires npm CLI v11.5.1+; Node 22 still ships
+        # npm 10.x. The bundled npm 10.9.7 in the ubuntu-latest runner image is
+        # broken on self-upgrade (`Cannot find module 'promise-retry'`), so we
+        # install via pnpm. pnpm's globally-installed bins live under its own
+        # global root (returned by `pnpm bin -g`), NOT directly in PNPM_HOME, so
+        # we must append that path to GITHUB_PATH explicitly — otherwise the
+        # system npm 10.x wins on PATH resolution and OIDC TP never engages.
+        run: |
+          pnpm add -g npm@latest
+          pnpm bin -g >> "$GITHUB_PATH"
+
+      - name: 🔍 Verify npm version (must be ≥ 11.5.1 for OIDC TP)
+        run: |
+          echo "resolved npm: $(which npm)"
+          npm --version
 
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
