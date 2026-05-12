@@ -45,6 +45,7 @@ jobs:
           # recognises the unresolved placeholder, treats the registry as
           # unauthenticated, and engages OIDC TP. Removing this line drops the
           # `registry=` config too and OIDC TP silently never starts (ENEEDAUTH).
+          registry-url: https://registry.npmjs.org
 
       - name: ⬆️ Upgrade npm for Trusted Publishing
         # npm Trusted Publishing requires npm CLI v11.5.1+.
