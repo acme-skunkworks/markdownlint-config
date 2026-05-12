@@ -89,6 +89,8 @@ Executed only after this ADR is marked Accepted. Steps are ordered to keep the p
 
 Per finding (1), there is no parallel TP mapping path. The canary approach is recommended to avoid putting the production package's publish capability at risk during pipeline development.
 
+**Pre-flight:** verify the status of [npm/cli#8976](https://github.com/npm/cli/issues/8976) before starting Phase 1. If still open with no workaround, the OIDC publish path for scoped packages may not work on CircleCI either (the root cause is in the npm CLI, not in `changesets/action`) — escalate before proceeding.
+
 1. **Publish a canary package.** Manually publish `@acme-skunkworks/markdownlint-config-canary` (a stripped-down copy or a placeholder) to npm using the existing manual bootstrap recipe in `CLAUDE.md`. This creates a package whose TP mapping can be freely edited without affecting `@acme-skunkworks/markdownlint-config`.
 2. **Configure CircleCI TP for the canary.** On `npmjs.com/package/@acme-skunkworks/markdownlint-config-canary/access`, add a CircleCI Trusted Publisher mapping with the UUIDs from step 2.
 3. **Build the `.circleci/config.yml`** on a feature branch. Two workflows, three jobs:
@@ -103,7 +105,7 @@ Per finding (1), there is no parallel TP mapping path. The canary approach is re
 
    The implementation lives under `scripts/release/` (shell + small Node helpers). Reusable building blocks: `@changesets/release-utils` exports `getChangelogEntry` and `readChangesetState`. Structural reference: `un-ts/changesets-gitlab` (the closest existing non-GHA driver).
 
-4. **Verify with snapshot publish.** From the feature branch, manually trigger the publish job against the canary. Use:
+4. **Verify with snapshot publish.** From the feature branch, manually trigger the publish job against the canary — via the CircleCI UI's "Trigger Pipeline" button or the `circleci pipeline trigger` CLI. The default `release` workflow is `main`-filtered, so this requires either a pipeline parameter override or a dedicated `snapshot-publish` job that bypasses the branch filter. Then run:
 
    ```bash
    pnpm changeset version --snapshot ci-test
@@ -127,7 +129,7 @@ Per finding (1), there is no parallel TP mapping path. The canary approach is re
 
 1. **Remove the disabled workflow files.** Delete `release.yml.disabled` and `ci.yml`. Retain `claude.yml` and `claude-code-review.yml`.
 2. **Tear down the canary package.** `npm deprecate @acme-skunkworks/markdownlint-config-canary "Canary package — used to validate CircleCI TP migration, no longer needed"`.
-3. **Update documentation.** Rewrite the "Release workflow" section in `CLAUDE.md` to reflect the CircleCI flow. Update `MIGRATION_FROM_PROTOMOLECULE.md` where it references GHA workflows by name. Update the husky `pre-push` hook's bot-identity allowlist to recognise the CircleCI bot's git committer name (TBD until step 6 — likely the GitHub PAT's owner identity, configurable).
+3. **Update documentation.** Rewrite the "Release workflow" section in `CLAUDE.md` to reflect the CircleCI flow. Update `MIGRATION_FROM_PROTOMOLECULE.md` where it references GHA workflows by name. Update the husky `pre-push` hook's bot-identity allowlist to recognise the CircleCI bot's git committer name (TBD until Phase 1 step 3 — likely the GitHub PAT's owner identity, configurable).
 
 ## Operational notes / known gotchas
 
@@ -136,7 +138,7 @@ These are facts that came out of the research and don't fit cleanly under any si
 - **npm CLI version.** Need `npm@11.5.1+` to publish via OIDC TP; `npm@11.10.0+` to use the `npm trust` CLI to configure mappings locally. The publish job must run `npm i -g npm@latest` before `pnpm changeset publish` because `cimg/node:22` may ship with an older bundled npm.
 - **NPM_TOKEN / NODE_AUTH_TOKEN must be empty.** A leftover (even empty-string) value short-circuits OIDC detection in the npm CLI. The publish job should pre-flight with: `[ -z "${NPM_TOKEN:-}${NODE_AUTH_TOKEN:-}" ] || { echo "Token vars set — OIDC will be bypassed"; exit 1; }`. Strip any such values from the CircleCI project env and from any `.npmrc` lines.
 - **OIDC token TTL is 1 hour.** Capture `NPM_ID_TOKEN` immediately before `pnpm changeset publish`, not at job start. A long job with build steps preceding publish risks token expiry.
-- **OIDC token decoding for debugging.** The token is a JWT; the payload is base64-encoded JSON. On publish failure, dump it for diff against the TP mapping: `echo "$NPM_ID_TOKEN" | cut -d. -f2 | base64 -d | jq` — safe because it's signed, not encrypted, and a failure means the token is already known-bad.
+- **OIDC token decoding for debugging.** The token is a JWT (base64url-encoded JSON payload). On publish failure, dump it for diff against the TP mapping with `node -e 'const p = process.env.NPM_ID_TOKEN.split(".")[1]; console.log(JSON.stringify(JSON.parse(Buffer.from(p, "base64url").toString()), null, 2))'`. Use `node` rather than the pipe-to-`base64 -d` form: JWT uses the URL-safe alphabet (`-` / `_`) and omits `=` padding, which GNU `base64 -d` tolerates but BSD `base64 -d` (macOS) often fails silently on. Safe to inspect because the token is signed, not encrypted; a failure means it's already known-bad.
 - **`circleci` CLI must exist in the job's image.** Pre-installed on `cimg/*` images. Custom images need explicit install.
 - **Don't pass `--provenance` from CircleCI.** It will fail. The `pnpm changeset publish` command should not include the flag.
 - **No per-job permissions block.** CircleCI has no equivalent of GHA's `permissions: { id-token: write, contents: write }`. Security comes from contexts (branch-restricted via `pipeline.git.branch == "main"`) and from the npm-side TP mapping (which pins to org-id + project-id + pipeline-definition-id).
@@ -147,10 +149,10 @@ These are facts that came out of the research and don't fit cleanly under any si
 
 ## Open questions (still requiring resolution during phase 1)
 
-- **CircleCI bot's git committer identity.** What `git config user.name` / `user.email` should the version-PR job use to commit the version bump? This determines what to add to the husky `pre-push` allowlist. Decided during step 6 (typically: a dedicated bot account whose PAT lives in a CircleCI context, with a stable username like `circleci-release-bot`).
+- **CircleCI bot's git committer identity.** What `git config user.name` / `user.email` should the version-PR job use to commit the version bump? This determines what to add to the husky `pre-push` allowlist. Decided during Phase 1 step 3 (typically: a dedicated bot account whose PAT lives in a CircleCI context, with a stable username like `circleci-release-bot`).
 - **GitHub Releases via `gh` CLI vs. raw REST.** Both work; `gh` is more ergonomic but requires apt-installing it in the job (the CircleCI default Node images don't ship `gh`). Decision: install `gh` once at job-start; cost is negligible (~5s).
 - **Branch-protection bypass mechanism.** Currently GHA uses `secrets.RELEASE_PAT` (with `GITHUB_TOKEN` fallback). CircleCI equivalent is a GitHub PAT stored in a context. Need to create a dedicated bot PAT with `contents: write` and `pull-requests: write` scopes.
-- **Will the npm-side TP rejection reproduce on CircleCI?** The original ASW-149 hypothesis. The phase 1 snapshot publish (step 7) tests it. If it reproduces, the issue is npm-side and this whole migration buys only the local-execution improvement; in that case the recommendation flips to Option B and ASW-149 becomes "wait on npm-side fix."
+- **Will the npm-side TP rejection reproduce on CircleCI?** The original ASW-149 hypothesis. The Phase 1 snapshot publish (step 4) tests it. If it reproduces, the issue is npm-side and this whole migration buys only the local-execution improvement; in that case the recommendation flips to Option B and ASW-149 becomes "wait on npm-side fix."
 
 ## Consequences
 
@@ -173,7 +175,7 @@ These are facts that came out of the research and don't fit cleanly under any si
 **Reversibility per phase:**
 
 - Phases 0 and 1 are fully reversible — the canary package is disposable, and no production state changes.
-- Phase 2 step 9 (TP mapping switch) is the irreversible-during-cutover step. Rollback is a ~30-second UI edit on npmjs.com plus re-enabling the disabled GHA workflow file. Not atomic; brief window where neither path can publish.
+- Phase 2 step 1 (TP mapping switch) is the irreversible-during-cutover step. Rollback is a ~30-second UI edit on npmjs.com plus re-enabling the disabled GHA workflow file. Not atomic; brief window where neither path can publish.
 - Phase 3 (cleanup) is fully reversible from git history.
 
 ## References
