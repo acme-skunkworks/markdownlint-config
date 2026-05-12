@@ -32,12 +32,15 @@ jobs:
         with:
           run_install: false
 
-      - name: 🟢 Setup Node.js (npm registry)
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          # Intentionally no `registry-url:` — it writes an .npmrc with a
+          # `_authToken=${NODE_AUTH_TOKEN}` line and exports NPM_CONFIG_USERCONFIG,
+          # which short-circuits npm's OIDC Trusted Publishing code path. The
+          # default registry (registry.npmjs.org) is already what we publish to.
 
       - name: ⬆️ Upgrade npm for Trusted Publishing
         # npm Trusted Publishing requires npm CLI v11.5.1+.
