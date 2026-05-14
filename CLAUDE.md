@@ -6,6 +6,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Standalone home for `@acme-skunkworks/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration. **The published artifact is `.markdownlint.jsonc` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSONC directly via `markdownlint-cli2`, whose parser stack handles the inline per-rule rationale comments. Bare `markdownlint` with `JSON.parse` would reject the comments — call this out if/when a non-cli2 consumer surfaces.
 
+## British English
+
+Use British English in all prose: code comments, documentation (`README.md`, `CLAUDE.md`, ADRs, `MIGRATION_FROM_PROTOMOLECULE.md`), changeset bodies, commit messages, PR titles/descriptions, and user-facing strings.
+
+**Spelling:** _colour_, _behaviour_, _organisation_, _centre_, _catalogue_, _recognise_, _analyse_, _realise_, _optimise_, _customise_, _favourite_, _travelling_, _cancelled_, _modelling_, _labelled_. Use _programme_ for the broadcast/agenda sense; keep _program_ when referring to source code.
+
+**Grammar/punctuation:** _whilst_ and _amongst_ are acceptable. Prefer single quotes for short quotations where appropriate; place full stops outside closing quotation marks when the quoted phrase is partial.
+
+**Scope — do NOT rewrite:**
+
+- Identifiers and APIs that mirror upstream names: CSS `color:` property, function/variable names, npm package names (`ansi-colors`, `supports-color`), CLI flags (`actionlint -color`), config keys.
+- Quoted upstream text and dependency names.
+- API field values that already use US spelling — for example, **Linear workflow state names like `Canceled`** come from the Linear API and stay as US-spelt when referenced in code, config, or docs.
+- Third-party request/response shapes.
+
+If in doubt about whether a token is identifier or prose, leave the original spelling.
+
 ## Commands
 
 ```bash
