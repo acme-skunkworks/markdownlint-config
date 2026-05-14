@@ -127,7 +127,7 @@ Versioning lives in [Changesets](https://github.com/changesets/changesets). `/se
 
    It prints JSON to stdout: `{ "slug": "...", "bump": "...", "body": "..." }`. The slash command then writes the file.
 
-4. **Skip the changeset step entirely** when the only commits on the branch are non-shippable (changes to `.changeset/`, `.claude/`, `scripts/send-it/`, top-level `README.md`, or a single `chore: update lockfile` commit). For those branches the PR body should note "no changeset (developer-tooling only change)".
+4. **Skip the changeset step entirely** when the only commits on the branch are non-shippable (changes to `.changeset/`, `.claude/`, `.agents/`, `scripts/send-it/`, top-level `README.md`, the top-level `skills-lock.json`, or a single `chore: update lockfile` commit). For those branches the PR body should note "no changeset (developer-tooling only change)".
 
 5. **Frontmatter format** (Changesets standard):
 
