@@ -2,5 +2,11 @@
   "config": {
     "extends": "./.markdownlint.jsonc",
   },
-  "globs": ["**/*.{md,mdx}", "!**/node_modules/**", "!**/dist/**"],
+  "globs": [
+    "**/*.{md,mdx}",
+    "!**/node_modules/**",
+    "!**/dist/**",
+    "!.agents/skills/**",
+    "!.claude/skills/**",
+  ],
 }
