@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,6 +13,11 @@ concurrency:
 jobs:
   release:
     name: 🚀 Release
+    # Guard manual workflow_dispatch from non-main refs — npm Trusted
+    # Publishing authorises by workflow filename, not branch, so a
+    # feature-branch dispatch would otherwise publish unreviewed code.
+    # Push trigger is already main-only.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -50,9 +56,14 @@ jobs:
       - name: ⬆️ Upgrade npm for Trusted Publishing
         # npm Trusted Publishing requires npm CLI v11.5.1+.
         # The bundled npm 10.9.7 in the ubuntu-latest runner image is broken on
-        # self-upgrade (`Cannot find module 'promise-retry'`), so install via pnpm
-        # — PNPM_HOME is already on PATH, so the new npm shadows the bundled one.
-        run: pnpm add -g npm@latest
+        # self-upgrade (`Cannot find module 'promise-retry'`), so install via pnpm.
+        # PNPM_HOME is exported but actions/setup-node prepends its tool-cache bin
+        # AFTER pnpm/action-setup runs, so the bundled npm wins on PATH unless we
+        # explicitly add PNPM_HOME to GITHUB_PATH for subsequent steps. See ASW-174.
+        run: |
+          pnpm add -g npm@latest
+          echo "$PNPM_HOME" >> "$GITHUB_PATH"
+          echo "Upgraded npm at $PNPM_HOME/npm: $("$PNPM_HOME/npm" --version)"
 
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
@@ -62,7 +73,11 @@ jobs:
         # Pinned to the v1.8.0 commit SHA so a moved tag can't change publish behavior under us.
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1.8.0
         with:
-          publish: pnpm changeset publish
+          # Bypass `pnpm changeset publish` — its OIDC TP path fails even when
+          # the upgraded npm is correctly on PATH (proven by eslint-config PR #21
+          # debug step). The wrapper calls `npm publish` directly via
+          # $PNPM_HOME/npm and is idempotent. See ASW-174.
+          publish: bash infrastructure/scripts/publish-via-raw-npm.sh
           commit: "release: version packages"
           title: "release: version packages"
           createGithubReleases: true
