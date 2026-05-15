@@ -165,6 +165,8 @@ If Step 5 was skipped because the branch is non-shippable per the Step 5.4 allow
 
 ### Step 7: Commit the changeset
 
+> **Skipped if Step 5 was skipped** (Changesets-not-installed gate at the top of Step 5, or the non-shippable-paths allowlist in Step 5.4). No `.changeset/<slug>.md` was written, so there's nothing to commit — continue at Step 8.
+
 ```bash
 git add .changeset/<slug>.md
 git commit -m "docs(changeset): <one-line summary>"
@@ -244,7 +246,7 @@ $ARGUMENTS
 4. Fetch `origin/main`; confirm commits ahead.
 5. Author or update `.changeset/<slug>.md` (slug from branch; bump from commits). **Gated** on `pnpm changeset --version` succeeding. Also skipped when the branch diff doesn't touch any shippable path (Step 5.4 allowlist) — in that case **no `.changeset/*.md` is written at all**, not even an empty one.
 6. `pnpm changeset status`. Skipped if Step 5 was skipped.
-7. Commit `docs(changeset): <title>`.
+7. Commit `docs(changeset): <title>`. Skipped if Step 5 was skipped.
 8. Push branch.
 9. `gh pr create --draft` (or `--ready`) / `gh pr edit`; `--merge-when-ready` enables auto-merge.
 10. Transition linked Linear issues to **In Review**.
