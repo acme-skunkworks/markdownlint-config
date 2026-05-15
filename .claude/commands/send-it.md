@@ -104,7 +104,7 @@ If `git log origin/main..HEAD` is empty, exit with: "No commits ahead of `main`.
 
 ### Step 5: Author or update the changeset
 
-> **Gated on Changesets being installed.** Run `pnpm changeset --version`. If the command fails (Changesets not wired up in this repo), skip Steps 5 and 6 entirely, print `/send-it: Changesets not installed — skipping changeset step.`, and continue at Step 7.
+> **Gated on Changesets being installed.** Run `pnpm changeset --version`. If the command fails (i.e., Changesets has been uninstalled), skip Steps 5, 6, and 7 entirely, print `/send-it: Changesets not installed — skipping changeset step.`, and continue at Step 8.
 
 Versioning lives in [Changesets](https://github.com/changesets/changesets). `/send-it` writes a single `.changeset/<slug>.md` per branch describing the user-facing change and the bump level. The release pipeline (`changesets/action` on `main`) reads these files, bumps versions, writes `CHANGELOG.md`, and tags the release — `/send-it` does **not** do any of that.
 
