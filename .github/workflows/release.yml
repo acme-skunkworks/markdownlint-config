@@ -13,6 +13,11 @@ concurrency:
 jobs:
   release:
     name: 🚀 Release
+    # Guard manual workflow_dispatch from non-main refs — npm Trusted
+    # Publishing authorises by workflow filename, not branch, so a
+    # feature-branch dispatch would otherwise publish unreviewed code.
+    # Push trigger is already main-only.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
