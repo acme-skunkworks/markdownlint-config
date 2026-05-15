@@ -104,7 +104,7 @@ If `git log origin/main..HEAD` is empty, exit with: "No commits ahead of `main`.
 
 ### Step 5: Author or update the changeset
 
-> **Gated on Changesets being installed.** Run `pnpm changeset --version`. If the command fails (Changesets not yet wired up in this repo — tracked in **ASW-70**), skip Steps 5 and 6 entirely, print `/send-it: Changesets not installed yet — skipping changeset step. Tracked in ASW-70.`, and continue at Step 7. The gate auto-opens when ASW-70 lands `@changesets/cli`; no further spec edit is needed at that point.
+> **Gated on Changesets being installed.** Run `pnpm changeset --version`. If the command fails (Changesets not wired up in this repo), skip Steps 5 and 6 entirely, print `/send-it: Changesets not installed — skipping changeset step.`, and continue at Step 7.
 
 Versioning lives in [Changesets](https://github.com/changesets/changesets). `/send-it` writes a single `.changeset/<slug>.md` per branch describing the user-facing change and the bump level. The release pipeline (`changesets/action` on `main`) reads these files, bumps versions, writes `CHANGELOG.md`, and tags the release — `/send-it` does **not** do any of that.
 
@@ -127,7 +127,17 @@ Versioning lives in [Changesets](https://github.com/changesets/changesets). `/se
 
    It prints JSON to stdout: `{ "slug": "...", "bump": "...", "body": "..." }`. The slash command then writes the file.
 
-4. **Skip the changeset step entirely** when the only commits on the branch are non-shippable (changes to `.changeset/`, `.claude/`, `.agents/`, `scripts/send-it/`, top-level `README.md`, the top-level `skills-lock.json`, or a single `chore: update lockfile` commit). For those branches the PR body should note "no changeset (developer-tooling only change)".
+4. **Decide whether a changeset is required.** A changeset is required **only** if the branch diff touches any of:
+   - `.markdownlint.jsonc`
+   - `package.json`, **and** the diff modifies any of these keys: `name`, `version`, `main`, `module`, `exports`, `types`, `dependencies`, `peerDependencies`, `peerDependenciesMeta`, `files`, `publishConfig`
+
+   These are the only paths whose changes reach consumers. `.markdownlint.jsonc` is the published artifact itself (no build step — `package.json#main` points straight at it), and the listed `package.json` keys define the shippable surface. Verify with `git diff --name-only origin/main...HEAD`; for `package.json`, also run `git diff origin/main...HEAD -- package.json` and check whether any of the listed keys appear in the hunks.
+
+   Otherwise — including pure docs (`README.md`, `MIGRATION_FROM_PROTOMOLECULE.md`, `CLAUDE.md`), CI / infra (`.github/`, `.husky/`, `infrastructure/`, `scripts/`, `.yamllint.yml`, `.npmrc`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `.prettierignore`, `.markdownlint-cli2.jsonc`), agent tooling (`.claude/`, `.agents/`, `skills-lock.json`, `.changeset/`), or a single `chore: update lockfile` commit — **skip the changeset step entirely**. Do **not** create a `.changeset/*.md` file. **Not even one with empty frontmatter.**
+
+   > ⚠️ **Why empty changesets are toxic.** An empty `.changeset/*.md` (frontmatter `---\n---`, no package bumps) is not a no-op. `changesets/action` reads it as "there are pending changesets," refuses to open a Version Packages PR (no bumps to apply), and refuses to fall through to the "publish unpublished packages" path. The workflow logs `All changesets are empty; not creating PR` and exits clean while the next release silently stalls. This jammed v2.0.0 — see ASW-171 / ASW-149. **An empty changeset is strictly worse than no file.**
+
+   When skipped, the PR body should note `no changeset (developer-tooling only change)` so reviewers can confirm the skip was intentional.
 
 5. **Frontmatter format** (Changesets standard):
 
@@ -147,11 +157,11 @@ Versioning lives in [Changesets](https://github.com/changesets/changesets). `/se
 
 ### Step 6: Validate locally
 
-> **Skipped if Step 5 was skipped** (either by the Changesets-not-installed gate at the top of Step 5, or by the developer-tooling skip rule in Step 5.4).
+> **Skipped if Step 5 was skipped** (either by the Changesets-not-installed gate at the top of Step 5, or by the non-shippable-paths allowlist in Step 5.4).
 
 Run `pnpm changeset status`. If it fails (no changesets when one is expected, or the file is malformed), surface the error and abort. Don't auto-fix; the user resolves.
 
-If Step 5 was skipped specifically because the branch is developer-tooling-only (Step 5.4), `pnpm changeset status` may report "no changesets" — that's expected. The release-pipeline policy on whether unchangesetted PRs are allowed is governed by CI's `changesets/action` config, not by `/send-it`.
+If Step 5 was skipped because the branch is non-shippable per the Step 5.4 allowlist, `pnpm changeset status` may report "no changesets" — that's expected. The release-pipeline policy on whether unchangesetted PRs are allowed is governed by CI's `changesets/action` config, not by `/send-it`.
 
 ### Step 7: Commit the changeset
 
@@ -232,7 +242,7 @@ $ARGUMENTS
 2. Refresh lockfile if `package.json` drifted.
 3. Commit any uncommitted changes as logical atomic commits.
 4. Fetch `origin/main`; confirm commits ahead.
-5. Author or update `.changeset/<slug>.md` (slug from branch; bump from commits). **Gated** on `pnpm changeset --version` succeeding — skipped until ASW-70 installs Changesets.
+5. Author or update `.changeset/<slug>.md` (slug from branch; bump from commits). **Gated** on `pnpm changeset --version` succeeding. Also skipped when the branch diff doesn't touch any shippable path (Step 5.4 allowlist) — in that case **no `.changeset/*.md` is written at all**, not even an empty one.
 6. `pnpm changeset status`. Skipped if Step 5 was skipped.
 7. Commit `docs(changeset): <title>`.
 8. Push branch.
