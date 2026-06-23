@@ -60,11 +60,19 @@ jobs:
       # are all this exact file — consumers can `gh attestation verify <tarball>`.
       - name: 📦 Pack tarball
         id: pack
-        env:
-          HUSKY: 0
         run: |
           set -euo pipefail
-          tarball="$(npm pack --silent)"
+          # --ignore-scripts: the only `prepare` script is husky (dev-only git
+          # hooks). Skip it during pack — the published tarball never needs
+          # hooks, and husky prints to stdout (e.g. "HUSKY=0 skip install"),
+          # which would otherwise pollute a stdout-captured filename. Read the
+          # packed name from disk, not stdout, so any lifecycle chatter is
+          # irrelevant.
+          npm pack --ignore-scripts --silent
+          # Resolve the packed file via a glob (not `ls`, per shellcheck SC2012);
+          # a fresh checkout has exactly one .tgz.
+          set -- ./*.tgz
+          tarball="$1"
           echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
           echo "Packed $tarball"
 
