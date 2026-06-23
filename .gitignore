@@ -3,6 +3,13 @@ dist/
 build/
 coverage/
 
+# Release packing ephemerals (release.yml packs into .pack/, downloads to .artifact/)
+*.tgz
+.pack/
+.artifact/
+# actionlint binary fetched by infrastructure/scripts/ensure-actionlint.sh
+/actionlint
+
 .turbo/
 
 .DS_Store
