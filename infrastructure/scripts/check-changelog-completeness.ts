@@ -33,10 +33,10 @@ export function hasChangelogEntry(changedFiles: readonly string[]): boolean {
   );
 }
 
-export interface CompletenessResult {
+export type CompletenessResult = {
   ok: boolean;
   reason: string;
-}
+};
 
 export function checkCompleteness(
   prTitle: string,
@@ -58,7 +58,7 @@ export function checkCompleteness(
 
   return {
     ok: false,
-    reason: `PR title "${prTitle}" triggers a release (feat/fix/breaking) but no changelog/*.md entry is present in the diff vs the base branch. Run /send-it (or add a dated changelog/ entry) so the release carries notes.`,
+    reason: `PR title "${prTitle}" triggers a release (feat/fix/perf/revert/breaking) but no changelog/*.md entry is present in the diff vs the base branch. Run /send-it (or add a dated changelog/ entry) so the release carries notes.`,
   };
 }
 
