@@ -1,6 +1,8 @@
 # 0001 — Migrate CI from GitHub Actions to CircleCI
 
-- **Status:** Proposed
+> **Superseded by [0002 — Changesets → Conventional Commits (release-please)](./0002-changesets-to-conventional-commits.md) (2026-06-23).** This repo stays on GitHub Actions: the estate standardised on release-please driven by a private orchestrator (SK-379), which resolves the release-pipeline pain that motivated the CircleCI evaluation without changing CI provider. The CircleCI migration was never executed. Retained for history.
+
+- **Status:** Superseded by 0002
 - **Date:** 2026-05-12
 - **Last research pass:** 2026-05-12 (CircleCI + npm TP docs)
 - **Deciders:** Rob Easthope (sole maintainer of `@acme-skunkworks/markdownlint-config`)

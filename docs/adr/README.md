@@ -17,4 +17,5 @@ Each ADR carries one of these statuses in its frontmatter:
 
 ## Index
 
-- [0001 — Migrate CI from GitHub Actions to CircleCI](./0001-migrate-ci-from-github-actions-to-circleci.md) — _Proposed_
+- [0001 — Migrate CI from GitHub Actions to CircleCI](./0001-migrate-ci-from-github-actions-to-circleci.md) — _Superseded by 0002_
+- [0002 — Changesets → Conventional Commits (release-please)](./0002-changesets-to-conventional-commits.md) — _Accepted_
