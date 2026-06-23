@@ -62,16 +62,20 @@ jobs:
         id: pack
         run: |
           set -euo pipefail
-          # --ignore-scripts: the only `prepare` script is husky (dev-only git
-          # hooks). Skip it during pack — the published tarball never needs
-          # hooks, and husky prints to stdout (e.g. "HUSKY=0 skip install"),
-          # which would otherwise pollute a stdout-captured filename. Read the
-          # packed name from disk, not stdout, so any lifecycle chatter is
-          # irrelevant.
-          npm pack --ignore-scripts --silent
-          # Resolve the packed file via a glob (not `ls`, per shellcheck SC2012);
-          # a fresh checkout has exactly one .tgz.
-          set -- ./*.tgz
+          # Pack into an isolated, empty directory so the artifact can't collide
+          # with any stray .tgz in the workspace, then assert exactly one tarball
+          # was produced before trusting it (this file is what gets published).
+          # --ignore-scripts skips the only `prepare` script (dev-only husky):
+          # the published tarball never needs git hooks, and husky's stdout would
+          # otherwise be a foot-gun. The name is read from disk, not stdout, so
+          # lifecycle chatter is irrelevant regardless.
+          rm -rf .pack && mkdir .pack
+          npm pack --ignore-scripts --silent --pack-destination .pack
+          set -- .pack/*.tgz
+          if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
+            echo "::error::expected exactly one packed tarball in .pack/, found $#: $*"
+            exit 1
+          fi
           tarball="$1"
           echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
           echo "Packed $tarball"
