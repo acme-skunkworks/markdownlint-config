@@ -97,6 +97,16 @@ describe("validateEntry", () => {
     ]);
   });
 
+  it("accepts an unquoted created_at (YAML Date → ISO with milliseconds)", () => {
+    // An unquoted timestamp parses to a YAML Date; asIso() serialises it via
+    // Date.toISOString(), which yields millisecond precision (".000Z"). The
+    // validator must accept that — its own asIso output would otherwise fail.
+    const raw = entry(
+      "title: \"x\"\ncreated_at: 2026-05-23T14:55:37Z\ncategory: fix\nbreaking: false",
+    );
+    expect(validateEntry(VALID_NAME, raw)).toEqual([]);
+  });
+
   it("rejects a non-integer pr", () => {
     const raw = entry(
       'title: "x"\ncreated_at: "2026-05-23T14:55:37Z"\ncategory: fix\nbreaking: false\npr: "twelve"',

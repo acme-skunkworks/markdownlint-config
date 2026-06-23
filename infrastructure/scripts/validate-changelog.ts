@@ -21,7 +21,10 @@ import { basename, join } from "node:path";
 export const CHANGELOG_DIR = "changelog";
 
 const FILENAME_RE = /^(\d{8})-(\d{6})-([a-z0-9-]+)\.md$/;
-const ISO_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+// Optional milliseconds: a quoted-string entry is second-precision, but an
+// unquoted YAML timestamp parses to a Date and `asIso` serialises it via
+// Date.prototype.toISOString(), which appends `.sss` — accept both forms.
+const ISO_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
 // SemVer 2.0.0: prerelease and build identifiers are dot-separated and may
 // contain ASCII alphanumerics and hyphens (e.g. 1.2.3-rc-1, 1.2.3+build-45).
 const SEMVER_RE =
