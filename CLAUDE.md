@@ -213,7 +213,7 @@ The publish + the `🏷️ Tag + GitHub release` step both gate on `steps.gate.o
 
 Don't reintroduce `NPM_TOKEN` **as a CI secret** unless OIDC is verified broken. The local `.env`-based `NPM_TOKEN` is a different concern — it's for laptop-driven publishes only, never CI.
 
-**Choosing the bump.** There is no changeset file. The bump is inferred by release-please from the **Conventional Commits PR title** (the squash subject): `fix:` → patch, `feat:` → minor, a `!` breaking marker (or `BREAKING CHANGE:` footer) → major. `/send-it` derives this automatically; for a hand-opened PR, set the title yourself. Non-release types (`docs:`/`chore:`/`ci:`/`refactor:`/`test:`/`build:`/`style:`/`perf:`) don't cut a release. The conventional-PR-title lint + the changelog-completeness gate in `ci.yml` keep the title honest.
+**Choosing the bump.** There is no changeset file. The bump is inferred by release-please from the **Conventional Commits PR title** (the squash subject): `feat:` → minor, `fix:`/`perf:`/`revert:` → patch, a `!` breaking marker (or `BREAKING CHANGE:` footer) → major. `/send-it` maps shippable changes to `feat`/`fix`/`feat!` only; release-please still bumps on a manually titled `perf:` or `revert:`. Non-release types (`docs:`/`chore:`/`ci:`/`refactor:`/`test:`/`build:`/`style:`) don't cut a release. The conventional-PR-title lint + the changelog-completeness gate in `ci.yml` keep the title honest.
 
 ### Out-of-band repo settings (one-time, not in code)
 
