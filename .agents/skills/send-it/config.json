@@ -1,0 +1,14 @@
+{
+  "baseBranch": "main",
+  "shippablePaths": [
+    ".markdownlint.jsonc",
+    "README.md"
+  ],
+  "shippableManifestKeys": [
+    "name",
+    "version",
+    "files",
+    "publishConfig"
+  ],
+  "changelog": true
+}
