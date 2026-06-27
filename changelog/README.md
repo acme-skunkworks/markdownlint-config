@@ -2,7 +2,7 @@
 
 One Markdown file per change, capturing what changed and why. Entries are written by the `/send-it` slash command at PR-creation time and finalised by the release-orchestrator **inside the release-please release PR** (before that PR merges) — see [Lifecycle](#lifecycle).
 
-This is the curated, per-change, machine-readable record — and, since the move to release-please (which runs with `skip-changelog`, SK-379), the **only** changelog in the repo: there is no root `CHANGELOG.md`. These entries are also what `release.yml` sources the GitHub-release notes from. Each entry carries a `version` so it can be tied back to the published release it shipped in.
+This is the curated, per-change, machine-readable record — and, since the move to release-please (which runs with `skip-changelog`, A-379), the **only** changelog in the repo: there is no root `CHANGELOG.md`. These entries are also what `release.yml` sources the GitHub-release notes from. Each entry carries a `version` so it can be tied back to the published release it shipped in.
 
 ## File naming
 
@@ -30,7 +30,7 @@ author: "you@example.com"
 co_authors: []
 category: feature # feature | fix | chore | docs | refactor | perf
 breaking: false
-issues: ["ASW-123"] # Linear issue IDs
+issues: ["A-123"] # Linear issue IDs
 stats: # filled at release (finalisation)
   files_changed: # integer
   loc_added: # integer
