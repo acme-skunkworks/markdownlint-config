@@ -29,7 +29,7 @@ describe("validateEntry", () => {
         'version: "1.2.0"',
         'created_at: "2026-05-23T14:55:37Z"',
         'merged_at: "2026-05-24T09:00:00Z"',
-        'branch: "asw-123-fix-a-thing"',
+        'branch: "a-123-fix-a-thing"',
         "pr: 42",
         'commit: "abc1234"',
         "merge_strategy: squash",
@@ -37,7 +37,7 @@ describe("validateEntry", () => {
         "co_authors: []",
         "category: fix",
         "breaking: false",
-        'issues: ["ASW-123"]',
+        'issues: ["A-123"]',
         "stats:",
         "  files_changed: 3",
         "  loc_added: 10",
@@ -102,7 +102,7 @@ describe("validateEntry", () => {
     // Date.toISOString(), which yields millisecond precision (".000Z"). The
     // validator must accept that — its own asIso output would otherwise fail.
     const raw = entry(
-      "title: \"x\"\ncreated_at: 2026-05-23T14:55:37Z\ncategory: fix\nbreaking: false",
+      'title: "x"\ncreated_at: 2026-05-23T14:55:37Z\ncategory: fix\nbreaking: false',
     );
     expect(validateEntry(VALID_NAME, raw)).toEqual([]);
   });

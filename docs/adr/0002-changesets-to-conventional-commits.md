@@ -5,9 +5,9 @@
 - **Deciders:** Rob Easthope (sole maintainer of `@acme-skunkworks/markdownlint-config`)
 - **Supersedes:** [0001 — Migrate CI from GitHub Actions to CircleCI](./0001-migrate-ci-from-github-actions-to-circleci.md) (the CI question is settled by staying on GitHub Actions)
 - **Tracking issues:**
-  - [SK-379](https://linear.app/acme-skunkworks/issue/SK-379) — migrate markdownlint-config to full eslint-config release parity
-  - [SK-371](https://linear.app/acme-skunkworks/issue/SK-371) — switch eslint-config versioning from Changesets to release-please
-  - [SK-376](https://linear.app/acme-skunkworks/issue/SK-376) — adopt release-please in the orchestrator
+  - [A-379](https://linear.app/acme-skunkworks/issue/A-379) — migrate markdownlint-config to full eslint-config release parity
+  - [A-371](https://linear.app/acme-skunkworks/issue/A-371) — switch eslint-config versioning from Changesets to release-please
+  - [A-376](https://linear.app/acme-skunkworks/issue/A-376) — adopt release-please in the orchestrator
 - **Mirrors:** eslint-config's ADR 0002 (`changesets-to-conventional-commits`), the org-wide pattern this repo adopts.
 
 ## Context
@@ -18,7 +18,7 @@ Keeping this repo on Changesets while its siblings move to release-please would 
 
 ## Decision
 
-Adopt **release-please with Conventional Commits**, mirroring eslint-config (SK-371) and agent-skills (SK-380), in **one atomic PR** (SK-379):
+Adopt **release-please with Conventional Commits**, mirroring eslint-config (A-371) and agent-skills (A-380), in **one atomic PR** (A-379):
 
 - **The PR title is the version signal.** The repo squash-merges, so the squash subject is the PR title; release-please parses it (`feat` → minor, `fix`/`perf`/`revert` → patch, `!`/`BREAKING CHANGE:` → major) to compute the bump. `/send-it` maps shippable changes to `feat`/`fix`/`feat!` only. CI lints the title (`amannn/action-semantic-pull-request`).
 - **Versioning is owned by the orchestrator.** release-please runs in the private release-orchestrator (not in this repo's CI), opens the release PR that bumps `package.json` + `.release-please-manifest.json`, and merges it. That merge re-fires `release.yml`, which is **publish-only**, gated by a keyless **version-vs-tag** check (publish iff `package.json`'s version has no matching `v<version>` git tag yet).
@@ -43,7 +43,7 @@ The published artifact is unchanged: `.markdownlint.jsonc` itself (no build step
 - A new TS/tsx/vitest toolchain enters the repo for the `changelog/` tooling (typecheck-only `tsc --noEmit`; nothing is published from it).
 - Out-of-band repo settings are required: an `npm-release` environment restricted to `main`, the `🔬 Build & Lint` required check, and `road-runner-bot` installed (done 2026-06-23).
 
-**Reversibility:** git-reversible in-repo. The orchestrator side (SK-376) is the coordinated counterpart; both land in the same window.
+**Reversibility:** git-reversible in-repo. The orchestrator side (A-376) is the coordinated counterpart; both land in the same window.
 
 ## References
 
