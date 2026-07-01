@@ -46,7 +46,7 @@ jobs:
 
   lint:
     needs: config
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-lint.yml@6cbcab65ca27950387b145888a68dd8e5e0d3ebe # v1.0.0
+    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-lint.yml@ff7151439d5f5d9820822e51b56ccba2d9c9c7f0 # v1.0.1
     with:
       node-version-file: ${{ needs.config.outputs.node_version_file }}
       # Config-only package: no TypeScript/JS source to ESLint.
@@ -66,7 +66,7 @@ jobs:
 
   build-test:
     needs: config
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-build-test.yml@6cbcab65ca27950387b145888a68dd8e5e0d3ebe # v1.0.0
+    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-build-test.yml@ff7151439d5f5d9820822e51b56ccba2d9c9c7f0 # v1.0.1
     with:
       node-version-file: ${{ needs.config.outputs.node_version_file }}
       # No build step — the published artefact is `.markdownlint.jsonc` itself.
