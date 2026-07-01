@@ -31,7 +31,7 @@
   "scripts": {
     "act:ci": "act pull_request -W .github/workflows/ci.yml --eventpath .github/act-events/pull_request.json",
     "act:list": "act --list",
-    "act:release:dry": "act push -W .github/workflows/release.yml",
+    "act:release:dry": "act push -W .github/workflows/pkg-release.yml",
     "changelog:finalise": "tsx infrastructure/scripts/finalise-changelog.ts",
     "clean": "rimraf node_modules",
     "format": "npx prettier --write .",

@@ -27,7 +27,7 @@ If in doubt about whether a token is identifier or prose, leave the original spe
 
 ## GitHub Actions repo config (A-176)
 
-Non-secret knobs shared by `ci.yml` and `release.yml` live in **`infrastructure/repo-config.yaml`**, loaded at runtime by the composite `.github/actions/load-repo-config` (`uses: ./.github/actions/load-repo-config`).
+Non-secret knobs shared by `ci.yml` and `pkg-release.yml` live in **`infrastructure/repo-config.yaml`**, loaded at runtime by the composite `.github/actions/load-repo-config` (`uses: ./.github/actions/load-repo-config`).
 
 | Key                         | Purpose                                                                                                                     |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -54,7 +54,7 @@ pnpm test            # vitest run (infrastructure/tests/**/*.test.ts)
 pnpm test:watch      # vitest in watch mode
 pnpm test:sh         # bats on infrastructure/tests/*.bats
 pnpm run format      # prettier write
-pnpm validate:changelog  # validate dated changelog/ entries (CI: build-and-lint job)
+pnpm validate:changelog  # validate dated changelog/ entries (CI: shared lint caller)
 ```
 
 Node 22 required (`.nvmrc`, `engines.node: ">=22"`, `engine-strict=true` in `.npmrc`).
@@ -89,7 +89,7 @@ with `npx skills add … --copy`; re-run `initialise-skills` afterwards.
 - **`commit-msg`** — strips any `Co-Authored-By: Claude … <noreply@anthropic.com>` trailer. Backstops the global `~/.claude/CLAUDE.md` rule (Claude is tooling, not a contributor).
 - **`pre-push`** — blocks direct pushes to `main`; humans should use `/send-it` to open a PR. Bot users (`github-actions[bot]`, `road-runner-bot[bot]`) bypass — which is what lets the release-please release commit (`chore(main): release <version>`, pushed by road-runner-bot) through. The bypass signal is the bot identity, not the commit message (a human-authored `chore(main): release …` does not bypass). It also runs `pnpm lint:yaml` + `pnpm lint:workflows` as a last-line gate (best-effort; skips with an install hint if the tool is missing).
 
-Hooks are dormant in CI: `release.yml` and `ci.yml` set `HUSKY=0` so the `prepare` script no-ops during `pnpm install`.
+Hooks are dormant in CI: `pkg-release.yml` and `ci.yml` set `HUSKY=0` so the `prepare` script no-ops during `pnpm install`.
 
 To bypass any hook in an emergency: `git commit --no-verify` or `git push --no-verify` — not recommended.
 
@@ -112,13 +112,13 @@ Two non-Node tools augment Prettier's formatting pass with the semantic checks P
 
 - `ensure-actionlint.sh` fetches `download-actionlint.bash` from the **immutable commit SHA** of the v1.7.5 tag (not the `v1.7.5` tag), passes the version explicitly so it installs that exact release, then independently re-verifies the extracted binary against a pinned sha256 (enforced on the CI arch, linux/amd64).
 - `ensure-bats.sh` verifies the downloaded release tarball against a pinned sha256 before extraction.
-- `ensure-yamllint.sh` installs via `pip install --require-hashes -r infrastructure/requirements-yamllint.txt`, so pip refuses any artefact — yamllint or a transitive dep — whose digest isn't listed. Regenerate that file when bumping (see its header). The `yaml-lint` cache key in `ci.yml` is keyed on its hash.
+- `ensure-yamllint.sh` installs via `pip install --require-hashes -r infrastructure/requirements-yamllint.txt`, so pip refuses any artefact — yamllint or a transitive dep — whose digest isn't listed. Regenerate that file when bumping (see its header).
 
-When bumping any of these, update the version **and** the matching digest/requirements together. These scripts run only in read-scoped CI jobs (`yaml-lint`, `infra`) — they must never be added to the `release`/`publish-github-packages` jobs, which is what keeps a compromised upstream away from the publish identity.
+When bumping any of these, update the version **and** the matching digest/requirements together. These scripts run only in local hooks and the reusable lint lane's pre-commit equivalents — publish logic lives in `acme-skunkworks/shared-workflows` (`reusable-pkg-release.yml`), which keeps a compromised upstream away from the publish identity.
 
-Configuration: `.yamllint.yml` at the repo root extends defaults, demotes line-length / indentation to warnings (Prettier owns formatting), allows the GitHub Actions truthy values (`on`, `off`, `yes`, `no`), and ignores `node_modules/`, `dist/`, `.turbo/`, `pnpm-lock.yaml`. No `.actionlintrc.yaml` — defaults are fine for this repo.
+Configuration: `.yamllint.yml` at the repo root extends defaults, demotes line-length / indentation to warnings (Prettier owns formatting), allows the GitHub Actions truthy values (`on`, `off`, `yes`, `no`), and ignores `node_modules/`, `dist/`, `.turbo/`, `pnpm-lock.yaml`. CI YAML/workflow linting is owned by the shared `reusable-lint.yml` lane (centralised `.yamllint.yml` + actionlint 1.7.12 in shared-workflows); bats/shellcheck run in the shared `reusable-build-test.yml` lane.
 
-Enforcement: pre-commit is best-effort (skip with install hint when missing); CI is the `yaml-lint` job in `ci.yml`, parallel to `build-and-lint`, always enforced. The install-and-run logic for both tools lives in `infrastructure/scripts/ensure-yamllint.sh` and `ensure-actionlint.sh`; the workflow calls those as one-liners (see `infrastructure/README.md`). Cache steps (`actions/cache`) stay inline in `ci.yml` because caching is a workflow concern.
+Enforcement: pre-commit is best-effort (skip with install hint when missing); CI is the shared `lint` reusable caller in `ci.yml`, always enforced. The local install-and-run logic for both tools lives in `infrastructure/scripts/ensure-yamllint.sh` and `ensure-actionlint.sh` (kept as tested local tooling, no longer invoked directly by `ci.yml`).
 
 ## Validating workflows locally with `act`
 
@@ -133,21 +133,21 @@ Enforcement: pre-commit is best-effort (skip with install hint when missing); CI
 ```bash
 pnpm act:list           # smoke test — enumerate every job in .github/workflows/
 pnpm act:ci             # run ci.yml as a PR event, using .github/act-events/pull_request.json
-pnpm act:release:dry    # run release.yml — runs everything up to the npm publish, then stops at the OIDC-bound provenance check
+pnpm act:release:dry    # run pkg-release.yml — stops at OIDC-bound publish steps without a real issuer
 ```
 
-The PR event fixture lives at `.github/act-events/pull_request.json` and sets `pull_request.head.ref` / `pull_request.base.ref` / `pull_request.title` so the `📓 Changelog completeness` gate (which diffs against `origin/${{ github.base_ref }}` and reads the PR title) and the `pr-title` lint resolve real values instead of `origin/`.
+The PR event fixture lives at `.github/act-events/pull_request.json` and sets `pull_request.head.ref` / `pull_request.base.ref` / `pull_request.title` so the `📓 Changelog completeness` gate (which diffs against `origin/${{ github.base_ref }}` and reads the PR title) resolves real values instead of `origin/`. PR-title lint runs in `validate-pr-title.yml`.
 
-**Capability matrix** (the build-once split is validated by static lint — actionlint/yamllint/shellcheck/bats green; the privileged publish legs need a real OIDC issuer and so only partially run under `act`):
+**Capability matrix** for this repo's workflows (the build-once split is validated by static lint — actionlint/yamllint/shellcheck/bats green; the reusable-caller jobs are resolved and exercised in real CI, not locally under `act`, which can't fully run cross-repo reusable-workflow `uses:` callers):
 
-| Workflow / Job                            | Under `act` | Notes                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml` → `build-and-lint`               | ✅ full     | Checkout → pnpm → Node 22 → install → typecheck → lint → validate:changelog all green. The `📓 Changelog completeness` step reads the PR title from the fixture; a `feat`/`fix`/breaking title with no `changelog/` entry fails by design — that's the gate working. The separate `pr-title` job also runs. |
-| `ci.yml` → `yaml-lint` / `infra`          | ✅ full     | yamllint/actionlint/bats/shellcheck/vitest all run inside the container.                                                                                                                                                                                                                                    |
-| `release.yml` → `build`                   | ✅ full     | Checkout → pnpm → Node → install → `npm pack` → upload-artifact. Unprivileged (`contents: read`); no publish surface, so it completes end-to-end (A-328). There is no compile step.                                                                                                                         |
-| `release.yml` → `release`                 | ⚠️ partial  | Needs `build`; npm upgrade → version-vs-tag gate → download-artifact succeed. Fails at `🚀 Publish (npm)` — `--provenance` needs a real `ACTIONS_ID_TOKEN_REQUEST_URL` there isn't one for locally. Documented gap.                                                                                         |
-| `release.yml` → `publish-github-packages` | ⚠️ partial  | Needs `release`; Node (GH Packages) + download-artifact succeed. Fails at `🔏 Attest build provenance` / publish: needs a real OIDC issuer + `GITHUB_TOKEN`. Confirm the job is _parsed and reached_, not that it publishes.                                                                                |
-| `claude-code-review.yml` / `claude.yml`   | ⏭️ skip     | Need `CLAUDE_CODE_OAUTH_TOKEN`. The `act:*` scripts use `-W` to scope to specific workflows, so these aren't loaded by default.                                                                                                                                                                             |
+| Workflow / Job                          | Under `act` | Notes                                                                                                                                                                                                                          |
+| --------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ci.yml` → `config`                     | ✅ full     | Local job — `./.github/actions/load-repo-config` resolves the shared repo-config knobs.                                                                                                                                        |
+| `ci.yml` → `lint` / `build-test`        | ⚠️ partial  | Reusable-workflow callers need cross-repo fetch; `act` may not resolve `acme-skunkworks/shared-workflows@<sha>` without extra setup. Local validation: `pnpm lint:workflows` + push to GHA.                                    |
+| `ci.yml` → `changelog-completeness`     | ✅ full     | On a `feat`/`fix`/breaking title with no `changelog/` entry it fails by design. PR-title lint is in `validate-pr-title.yml`.                                                                                                   |
+| `ci.yml` → `go-no-go`                   | ⚠️ partial  | Aggregator (`GO/NO GO`, `if: always()`) — depends on the reusable-caller job results, so a full verdict only resolves in real CI. This is the required status check.                                                           |
+| `pkg-release.yml` → `pkg-release`       | ⚠️ partial  | Thin caller into `reusable-pkg-release.yml`. Fails at OIDC/provenance steps without a real `ACTIONS_ID_TOKEN_REQUEST_URL` — documented gap. The `npm-release` environment's branch policy is server-side, so `act` ignores it. |
+| `claude-code-review.yml` / `claude.yml` | ⏭️ skip     | Thin callers of the reusable Claude workflows. Need `CLAUDE_CODE_OAUTH_TOKEN`. The `act:*` scripts use `-W` to scope to specific workflows, so these aren't loaded by default.                                                 |
 
 **Pre-push gate:** `.husky/pre-push` runs `pnpm lint:workflows` (actionlint) and `pnpm lint:yaml` (yamllint) on every push as a last-line safety net for cases where pre-commit was bypassed. Both are sub-second on this repo. If either tool isn't installed locally the hook prints an install hint and skips — CI is the enforced gate. To bypass entirely in an emergency: `git push --no-verify`.
 
@@ -165,33 +165,31 @@ Today's scripts:
 
 | File                                      | Replaces                                                               | Tests                                        |
 | ----------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------- |
-| `scripts/ensure-yamllint.sh`              | `ci.yml` yamllint step                                                 | `tests/ensure-yamllint.bats`                 |
-| `scripts/ensure-actionlint.sh`            | `ci.yml` actionlint step                                               | `tests/ensure-actionlint.bats`               |
-| `scripts/ensure-bats.sh`                  | `ci.yml` bats install step                                             | `tests/ensure-bats.bats`                     |
-| `scripts/publish-via-raw-npm.sh`          | `release.yml` `🚀 Publish (npm)` step                                  | `tests/publish-via-raw-npm.bats`             |
-| `scripts/publish-to-github-packages.sh`   | `release.yml` `publish-github-packages` job                            | `tests/publish-to-github-packages.bats`      |
+| `scripts/ensure-yamllint.sh`              | local yamllint install (CI run now via shared `lint` caller)           | `tests/ensure-yamllint.bats`                 |
+| `scripts/ensure-actionlint.sh`            | local actionlint install (CI run now via shared `lint` caller)         | `tests/ensure-actionlint.bats`               |
+| `scripts/ensure-bats.sh`                  | local bats install (CI run now via shared `build-test` caller)         | `tests/ensure-bats.bats`                     |
 | `send-it/derive-changeset.ts`             | (used by `/send-it`)                                                   | `tests/derive-changeset.test.ts`             |
-| `scripts/validate-changelog.ts`           | `ci.yml` build-and-lint `validate:changelog`                           | `tests/validate-changelog.test.ts`           |
-| `scripts/check-changelog-completeness.ts` | `ci.yml` build-and-lint changelog-completeness gate (A-379)            | `tests/check-changelog-completeness.test.ts` |
+| `scripts/validate-changelog.ts`           | `validate:changelog` (CI: shared `lint` caller)                        | `tests/validate-changelog.test.ts`           |
+| `scripts/check-changelog-completeness.ts` | `ci.yml` `changelog-completeness` gate (A-379)                         | `tests/check-changelog-completeness.test.ts` |
 | `scripts/finalise-changelog.ts`           | orchestrator step, run after `release-please release-pr` (A-379/A-376) | `tests/finalise-changelog.test.ts`           |
 | `scripts/enrich-changelog.ts`             | (pure lib used by finalise)                                            | `tests/enrich-changelog.test.ts`             |
 | `scripts/add-links-changelog.ts`          | (pure lib used by finalise)                                            | `tests/add-links-changelog.test.ts`          |
 | `scripts/stamp-changelog-version.ts`      | (pure lib used by finalise)                                            | `tests/stamp-changelog-version.test.ts`      |
 
-CI: the `infra` job in `ci.yml` runs `pnpm lint:sh`, `pnpm test`, `pnpm test:sh`, and `pnpm validate:changelog` against this directory. Locally, `pnpm lint:sh` / `pnpm test:sh` skip with install hints if `shellcheck` / `bats` aren't on PATH — `pnpm test` (vitest) always runs because vitest is a node devDep. The TS is typechecked with `pnpm tsc` (`tsc --noEmit`); `tsconfig.json` includes only `infrastructure/**/*.ts` and emits nothing — the published artifact stays `.markdownlint.jsonc`.
+CI: ShellCheck, Vitest and bats run in the shared `build-test` reusable caller (`reusable-build-test.yml`) and `validate:changelog` in the shared `lint` caller (`reusable-lint.yml`) — the old local `infra` job is gone. Locally, `pnpm lint:sh` / `pnpm test:sh` skip with install hints if `shellcheck` / `bats` aren't on PATH — `pnpm test` (vitest) always runs because vitest is a node devDep. The TS is typechecked with `pnpm tsc` (`tsc --noEmit`); `tsconfig.json` includes only `infrastructure/**/*.ts` and emits nothing — the published artifact stays `.markdownlint.jsonc`.
 
 When adding workflow-extracted tooling, write the test first, then wire from YAML as a one-liner: `run: pnpm tsx infrastructure/scripts/<name>.ts` or `run: bash infrastructure/scripts/<name>.sh`. (The bespoke `/send-it` slash command and its `infrastructure/send-it/` helpers have been superseded by the shared `send-it` agent skill — see [Agent skills](#agent-skills); the now-orphaned `infrastructure/send-it/` helpers are slated for follow-up removal.)
 
 ## Dated changelog (`changelog/`)
 
-The `changelog/` directory is the **only** changelog in the repo — there is no root `CHANGELOG.md` (release-please runs with `skip-changelog`, A-379). It keeps **one dated Markdown file per shippable change** — a browsable, per-change, machine-readable record. `release.yml` sources its GitHub-release notes from these entries. Full schema and lifecycle in **`changelog/README.md`**.
+The `changelog/` directory is the **only** changelog in the repo — there is no root `CHANGELOG.md` (release-please runs with `skip-changelog`, A-379). It keeps **one dated Markdown file per shippable change** — a browsable, per-change, machine-readable record. `pkg-release.yml` (via `reusable-pkg-release.yml`) sources its GitHub-release notes from these entries. Full schema and lifecycle in **`changelog/README.md`**.
 
 Two-stage lifecycle — finalisation rides inside the release-please release PR, which the private release-orchestrator creates (A-320 / A-376).
 
 1. **PR-time** — `/send-it` Step 5b writes `changelog/<YYYYMMDD-HHMMSS>-<slug>.md` with the PR-time fields (and empty enrichment placeholders), **gated on shippability** (only for shippable changes per Step 5.3 — the same changes that get a release-triggering `feat`/`fix`/breaking PR title), so every entry maps to a version bump. CI's changelog-completeness gate re-enforces this coupling. The entry merges to `main` with its feature PR and sits with placeholders until release.
 2. **Release (in the release PR)** — the **orchestrator** runs `release-please release-pr` (which bumps `package.json` + `.release-please-manifest.json`) then `finalise-changelog.ts` (= `pnpm changelog:finalise`). For every entry without a `version`, finalise resolves its merged PR from the `branch` field via `gh` (filling `merged_at`/`commit`/`pr`/`merge_strategy`/`stats`), stamps the just-bumped `version`, and rewrites Linear IDs to links. The orchestrator commits those changelog edits **into the release PR** (pushed with its App token) — so they merge and publish through the normal flow. Idempotent and re-run-safe.
 
-`validate:changelog` enforces the schema (CI: the `build-and-lint` job). Required frontmatter is relaxed to `title`/`created_at`/`category`/`breaking` so backfilled historical entries and in-flight entries both pass.
+`validate:changelog` enforces the schema (CI: the shared `reusable-lint.yml` caller). Required frontmatter is relaxed to `title`/`created_at`/`category`/`breaking` so backfilled historical entries and in-flight entries both pass.
 
 `finalise-changelog.ts` is the only CLI; `enrich-changelog.ts`, `add-links-changelog.ts`, and `stamp-changelog-version.ts` are pure library modules it composes.
 
@@ -201,54 +199,46 @@ There are two release modes — know which one you're in.
 
 ### Day-to-day releases (CI via OIDC)
 
-Once the package's Trusted Publisher is configured against this repo's `release.yml`, every release flows through CI:
+Once the package's Trusted Publisher is configured against this repo's `pkg-release.yml`, every release flows through CI:
 
-1. Make changes on a feature branch; `/send-it` bundles, writes the dated `changelog/<slug>.md` entry (for shippable changes), sets a **Conventional Commits PR title** (the squash subject release-please reads — `feat`/`fix`/`feat!` for shippable, a non-release type otherwise), pushes, opens a PR. CI (`.github/workflows/ci.yml`) runs lint/typecheck, the conventional-PR-title lint, and the changelog-completeness gate on the PR.
-2. After merge, the private **release-orchestrator** (road-runner-bot, runs a 15-min cron) mints a short-lived repo-scoped App token, runs `release-please release-pr` (which infers the bump from the merged PR titles and writes `package.json` + `.release-please-manifest.json`) then `finalise-changelog.ts`, pushes the `release-please--branches--main` branch, and opens the "`chore(main): release <version>`" release PR. On a later tick it squash-merges that PR once `🔬 Build & Lint` is green.
-3. The orchestrator's App-token merge pushes to `main`, re-firing `release.yml`. An unprivileged `build` job `npm pack`s the tarball once (no compile — the artifact is `.markdownlint.jsonc`) and uploads it as an artifact; the `release` job sees a **freshly bumped version with no matching git tag**, downloads that exact tarball, and publishes it to npm via OIDC Trusted Publishing (no token, no OTP) + provenance attestation, plus git tags + a GitHub release (notes sourced from the dated `changelog/` entry). A third `publish-github-packages` job downloads the **same** tarball and mirrors it to GitHub Packages with a GitHub-native build-provenance attestation (A-323).
+1. Make changes on a feature branch; `/send-it` bundles, writes the dated `changelog/<slug>.md` entry (for shippable changes), sets a **Conventional Commits PR title** (the squash subject release-please reads — `feat`/`fix`/`feat!` for shippable, a non-release type otherwise), pushes, opens a PR. CI (`ci.yml` + `validate-pr-title.yml`) runs shared lint/build-test callers, the conventional-PR-title lint, the changelog-completeness gate, and the `GO/NO GO` aggregator on the PR.
+2. After merge, the private **release-orchestrator** (road-runner-bot, runs a 15-min cron) mints a short-lived repo-scoped App token, runs `release-please release-pr` (which infers the bump from the merged PR titles and writes `package.json` + `.release-please-manifest.json`) then `finalise-changelog.ts`, pushes the `release-please--branches--main` branch, and opens the "`chore(main): release <version>`" release PR. On a later tick it squash-merges that PR once `GO/NO GO` is green.
+3. The orchestrator's App-token merge pushes to `main`, re-firing `pkg-release.yml`. The thin caller invokes `acme-skunkworks/shared-workflows/.github/workflows/reusable-pkg-release.yml@<sha>`: an unprivileged build leg `npm pack`s the tarball once (no compile — the artifact is `.markdownlint.jsonc`); the publish leg sees a **freshly bumped version with no matching git tag**, downloads that exact tarball, and publishes it to npm via OIDC Trusted Publishing (no token, no OTP) + provenance attestation, plus git tags + a GitHub release (notes sourced from the dated `changelog/` entry). The GitHub Packages leg downloads the **same** tarball and mirrors it to GitHub Packages with a GitHub-native build-provenance attestation (A-323).
 
-**`release.yml` is publish-only (A-320).** It does **not** create the release PR — that path needs an identity that isn't `github-actions[bot]` (the "Allow GitHub Actions to create and approve pull requests" toggle is deliberately off, A-313), so versioning lives in the orchestrator where the App key stays private (A-312). A `🔎 Detect release (version vs tag)` step gates the publish on `publish == 'true'`: a feature-merge (version unchanged → its tag exists) is a clean green no-op; a release-PR merge (version bumped → no tag yet) publishes. This is a keyless replacement for the old `.changeset/*.md` scan — no Changesets dependency. The bot's private key never touches this public repo's CI.
+**`pkg-release.yml` is publish-only (A-320).** It does **not** create the release PR — that path needs an identity that isn't `github-actions[bot]` (the "Allow GitHub Actions to create and approve pull requests" toggle is deliberately off, A-313), so versioning lives in the orchestrator where the App key stays private (A-312). A version-vs-tag gate inside `reusable-pkg-release.yml` gates the publish: a feature-merge (version unchanged → its tag exists) is a clean green no-op; a release-PR merge (version bumped → no tag yet) publishes. This is a keyless replacement for the old `.changeset/*.md` scan — no Changesets dependency. The bot's private key never touches this public repo's CI.
 
-**Cross-boundary hardening (A-326).** npm Trusted Publishing binds its OIDC subject to repository + workflow filename only — not the trigger event, ref, or actor — so anything able to run `release.yml` against an arbitrary ref could mint a valid publish credential. Three layers close that:
+**Cross-boundary hardening (A-326).** npm Trusted Publishing binds its OIDC subject to repository + **caller** workflow filename (`pkg-release.yml`, A-543) + environment — not the trigger event, ref, actor, or the reusable callee — so anything able to run `pkg-release.yml` against an arbitrary ref could mint a valid publish credential. Three layers close that:
 
-- **No `workflow_dispatch`.** The only trigger is `push: [main]`; re-run a failed release via "Re-run jobs" on the original push run.
-- **Branch-restricted `npm-release` environment** on both privileged jobs (`release` and `publish-github-packages`). It permits deployments **only from `refs/heads/main`**, so a non-main ref is rejected before the OIDC token is mintable. **No required reviewers** — releases stay hands-off; this is a structural ref gate, not a manual approval. The environment is configured in repo settings (not in YAML): `gh api -X PUT repos/acme-skunkworks/markdownlint-config/environments/npm-release` with `deployment_branch_policy.custom_branch_policies=true`, then a single `main` branch policy.
-- **Explicit ref guard** (`github.event_name == 'push' && github.ref == 'refs/heads/main' && …`) on every publish/tag step and the GitHub Packages job `if:`. Redundant with the environment now, but kept as the porting template's in-workflow structural defence.
+- **No `workflow_dispatch`.** The only trigger is `push: [main]`; re-run a failed release via "Re-run jobs" on the original push run. The caller stub owns the trigger — `workflow_call` cannot, and a dispatched run would satisfy the same npm OIDC subject as a legitimate post-merge push (A-326).
+- **Branch-restricted `npm-release` environment** on the reusable publish jobs. It permits deployments **only from `refs/heads/main`**, so a non-main ref is rejected before the OIDC token is mintable. **No required reviewers** — releases stay hands-off; this is a structural ref gate, not a manual approval. A reusable workflow's `environment:` resolves in the **caller** repo, so it is configured here in repo settings (not in YAML): `gh api -X PUT repos/acme-skunkworks/markdownlint-config/environments/npm-release` with `deployment_branch_policy.custom_branch_policies=true`, then a single `main` branch policy.
+- **Version-vs-tag gate** inside `reusable-pkg-release.yml`: a feature-merge (version unchanged → its tag exists) is a clean green no-op; a release-PR merge (version bumped → no tag yet) publishes.
 
-**Build once, publish the exact artifact (A-328).** Pack-time code (`pnpm install` + `npm pack`) runs **only** in the unprivileged `build` job (`contents: read`, no `id-token`/`packages`/`contents: write`). Both publish legs download and ship that one tarball, so a compromised install-time dependency never runs alongside a mintable publish credential, and the npm tarball, the GitHub Packages tarball, and the attested digest are guaranteed byte-identical.
+**Build once, publish the exact artifact (A-328).** Implemented in `reusable-pkg-release.yml`: pack-time code (`pnpm install` + `npm pack`) runs **only** in an unprivileged build leg (`contents: read`, no `id-token`/`packages`/`contents: write`). Both publish legs download and ship that one tarball, so a compromised install-time dependency never runs alongside a mintable publish credential, and the npm tarball, the GitHub Packages tarball, and the attested digest are guaranteed byte-identical.
 
-**The publish step calls the wrapper directly (`pnpm publish` doesn't work for TP).** A-379 dropped the `changesets/action` shell; the `🚀 Publish (npm)` step is now a plain `run: bash infrastructure/scripts/publish-via-raw-npm.sh`, which calls `$PNPM_HOME/npm publish "$TARBALL" --access public --provenance` directly on the prebuilt tarball (A-328). Two reasons (both diagnosed in A-174):
+**The publish internals are centralised in `reusable-pkg-release.yml` (A-384); this repo no longer ships local `publish-*.sh` wrappers.** The npm-upgrade step, the raw-npm publish wrapper (`pnpm publish` doesn't satisfy npm Trusted Publishing's OIDC, so it calls `npm publish "$TARBALL" --access public --provenance` directly on the prebuilt tarball), the build-once split, the GitHub Packages leg, and the version-vs-tag gate all live in the reusable workflow now — the same logic the old inline `release.yml` + `publish-via-raw-npm.sh` / `publish-to-github-packages.sh` scripts carried, moved upstream to kill the copy-paste drift. Key properties the reusable workflow preserves:
 
-- `actions/setup-node` runs after `pnpm/action-setup` and prepends its tool-cache bin to PATH, so plain `npm` resolves to whatever npm Node 22 ships. npm Trusted Publishing requires npm 11.5.1+. The upgrade-npm step works around this by `pnpm add -g npm@11.14.1` (pinned, not `@latest`, for CI reproducibility) and appending `$PNPM_HOME` to `$GITHUB_PATH`.
-- Even with PATH correct, `pnpm publish` fails OIDC Trusted Publishing — pnpm's own publish HTTP/OIDC implementation doesn't satisfy what npm Trusted Publishing expects. The wrapper sidesteps this by calling npm directly. It is also idempotent: if `npm view name@version` succeeds, it exits 0 instead of re-publishing.
+- **npm upgrade for Trusted Publishing.** `actions/setup-node` prepends its tool-cache bin to PATH, so plain `npm` resolves to whatever Node 22 ships; npm Trusted Publishing requires npm 11.5.1+. The reusable workflow pins the upgrade (not `@latest`) for CI reproducibility and fixes up `$GITHUB_PATH`.
+- **Idempotent publishes.** Each leg skips (exits 0) if `npm view name@version` already succeeds instead of re-publishing.
+- **GitHub Packages secondary target (A-323).** npmjs.org (OIDC + provenance) is the canonical public source; GitHub Packages is mirrored alongside it. `packages: write` is scoped to its own leg — never the leg that holds `id-token: write` for npm OIDC. Auth is the ephemeral per-job `GITHUB_TOKEN` (no OIDC Trusted-Publisher flow exists for GitHub Packages); provenance is a GitHub-native `actions/attest-build-provenance` attestation over the exact tarball (`gh attestation verify <tarball> --repo acme-skunkworks/markdownlint-config`). The GitHub Packages target is hard-coded to `https://npm.pkg.github.com` and aborts if it drifts (A-330) — the ephemeral `GITHUB_TOKEN` is a bearer credential, so the host must never be redirectable by a config edit.
 
-The publish + the `🏷️ Tag + GitHub release` step both gate on `steps.gate.outputs.publish == 'true'`, so on a feature-merge (version already tagged) they're skipped and the run is a clean no-op; the orchestrator owns versioning and the release PR.
-
-**GitHub Packages — secondary target (A-323).** npmjs.org (OIDC + provenance) is the canonical public source; GitHub Packages is published alongside it as a secondary mirror with the security gaps closed:
-
-- **Separate `publish-github-packages` job**, gated `needs: release` + `if: needs.release.outputs.should_publish == 'true'` (same version-vs-tag condition, reused via a job output) **plus the same main-only ref guard + `npm-release` environment** (A-326). `packages: write` is scoped to this job only — never to the `release` job that holds `id-token: write` for npm OIDC.
-- **Auth is the ephemeral per-job `GITHUB_TOKEN`** — the most secure option GitHub Packages offers (no OIDC Trusted-Publisher flow exists for it).
-- **Provenance via GitHub-native attestation.** `npm publish --provenance` is npmjs.org-only, so the job runs `actions/attest-build-provenance` over the exact tarball it publishes (`gh attestation verify <tarball> --repo acme-skunkworks/markdownlint-config`).
-- **`publish-to-github-packages.sh`** is idempotent (skips on `npm view` hit) and reads inputs from env. It **hard-codes the publish target to `https://npm.pkg.github.com` and aborts if `GITHUB_PACKAGES_REGISTRY_URL` drifts from it** (A-330) — the ephemeral `GITHUB_TOKEN` is a bearer credential, so the host must never be redirectable by a config edit.
-
-> **Watch-item:** the npm leg's git tag + GitHub release are created explicitly in the `release` job's `🏷️ Tag + GitHub release` step (npm publish itself creates neither). Confirm that step still runs on each release, and that its notes resolve from the dated `changelog/` entry for the version (there is no root `CHANGELOG.md` to fall back on).
+> **Watch-item:** the npm leg's git tag + GitHub release are created explicitly by the reusable workflow (npm publish itself creates neither). Confirm that step still runs on each release, and that its notes resolve from the dated `changelog/` entry for the version (there is no root `CHANGELOG.md` to fall back on).
 
 Don't reintroduce `NPM_TOKEN` **as a CI secret** unless OIDC is verified broken. The local `.env`-based `NPM_TOKEN` is a different concern — it's for laptop-driven publishes only, never CI.
 
-**Choosing the bump.** There is no changeset file. The bump is inferred by release-please from the **Conventional Commits PR title** (the squash subject): `feat:` → minor, `fix:`/`perf:`/`revert:` → patch, a `!` breaking marker (or `BREAKING CHANGE:` footer) → major. `/send-it` maps shippable changes to `feat`/`fix`/`feat!` only; release-please still bumps on a manually titled `perf:` or `revert:`. Non-release types (`docs:`/`chore:`/`ci:`/`refactor:`/`test:`/`build:`/`style:`) don't cut a release. The conventional-PR-title lint + the changelog-completeness gate in `ci.yml` keep the title honest.
+**Choosing the bump.** There is no changeset file. The bump is inferred by release-please from the **Conventional Commits PR title** (the squash subject): `feat:` → minor, `fix:`/`perf:`/`revert:` → patch, a `!` breaking marker (or `BREAKING CHANGE:` footer) → major. `/send-it` maps shippable changes to `feat`/`fix`/`feat!` only; release-please still bumps on a manually titled `perf:` or `revert:`. Non-release types (`docs:`/`chore:`/`ci:`/`refactor:`/`test:`/`build:`/`style:`) don't cut a release. The conventional-PR-title lint (`validate-pr-title.yml`) + the changelog-completeness gate in `ci.yml` keep the title honest.
 
 ### Out-of-band repo settings (one-time, not in code)
 
 These can't live in the repo and must be set in GitHub/npm settings for the day-to-day flow to work (mirror A-348):
 
 - The **`npm-release` environment** restricted to `main` (see the `gh api` command above).
-- **`🔬 Build & Lint`** as a required status check on `main`.
+- **`GO/NO GO`** as a required status check on `main` (the `go-no-go` aggregator replaces the old `🔬 Build & Lint` check); **`pr-title / Validate PR title is a Conventional Commit`** is required too, per the estate ruleset.
 - **road-runner-bot** installed on this repo (done 2026-06-23 via release-orchestrator PR #11) and this repo listed in the orchestrator's `matrix.repo`.
 - The **npm Trusted Publisher** mapping (configured after the first publish — see Bootstrap below).
 
 ### Manual publish (break-glass — CI-down only, after the package exists)
 
-> **This is break-glass, not a routine path (A-331).** Reach for it only when CI/OIDC is genuinely down — every normal release goes through `release.yml` (OIDC, no standing token). The `.env` `NPM_TOKEN` is a long-lived credential: store it in a secrets manager retrieved just-in-time, keep its lifetime short with a documented rotation cadence, rotate immediately on exposure, and never add it as a CI secret.
+> **This is break-glass, not a routine path (A-331).** Reach for it only when CI/OIDC is genuinely down — every normal release goes through `pkg-release.yml` (OIDC, no standing token). The `.env` `NPM_TOKEN` is a long-lived credential: store it in a secrets manager retrieved just-in-time, keep its lifetime short with a documented rotation cadence, rotate immediately on exposure, and never add it as a CI secret.
 
 Auth setup (one-time, or after rotating your token):
 
@@ -303,7 +293,7 @@ So bootstrap is always: manual first publish → configure Trusted Publisher →
 
    Generate codes at npmjs.com → Profile → Two-Factor Authentication → Manage Recovery Codes. Each is single-use (a long hex string, not a 6-digit TOTP — npm accepts it as `--otp` anyway). After the publish succeeds, **immediately regenerate recovery codes**: the one you used is burnt, and if you transmitted it anywhere treat the rest of the set as compromised. (Moot when the passkey browser flow worked — no OTP was ever entered.)
 
-5. Configure Trusted Publisher: `https://www.npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow filename (`release.yml`), environment blank.
+5. Configure Trusted Publisher: `https://www.npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow filename (`pkg-release.yml` — the caller stub, not the reusable callee, which is what npm's OIDC subject matches), environment `npm-release`.
 6. From here on, releases go through CI cleanly.
 
 ### Things that look like solutions but aren't
@@ -322,6 +312,6 @@ Saving these to spare the next bootstrap from rediscovering them:
 
 The Trusted Publisher mapping on npm is what makes the OIDC publish work without an `NPM_TOKEN`. It is configured **after** the manual bootstrap publish (the npmjs.com form is unreachable until the package exists):
 
-- After the first version lands on npm via the manual bootstrap, configure the Trusted Publisher: `npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow `release.yml`, environment blank.
+- After the first version lands on npm via the manual bootstrap, configure the Trusted Publisher: `npmjs.com/package/@acme-skunkworks/markdownlint-config/access` → GitHub Actions → org `acme-skunkworks`, repo `markdownlint-config`, workflow `pkg-release.yml` (the caller stub, which is what npm's OIDC subject matches — not the reusable callee), environment `npm-release`.
 - From the next release onward, releases ride CI/OIDC with provenance attestation — no token, no OTP, no recovery codes.
 - The legacy `@robeasthope/markdownlint-config` on npm has its own independent Trusted Publisher mapping pointing at `RobEasthope/protomolecule` — a different package; leave it alone.
