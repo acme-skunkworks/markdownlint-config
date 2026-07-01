@@ -10,6 +10,9 @@ importers:
       "@types/node":
         specifier: ^25.6.0
         version: 25.9.4
+      bats:
+        specifier: 1.13.0
+        version: 1.13.0
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -907,6 +910,13 @@ packages:
         integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==,
       }
     engines: { node: 18 || 20 || >=22 }
+
+  bats@1.13.0:
+    resolution:
+      {
+        integrity: sha512-giSYKGTOcPZyJDbfbTtzAedLcNWdjCLbXYU3/MwPnjyvDXzu6Dgw8d2M+8jHhZXSmsCMSQqCp+YBsJ603UO4vQ==,
+      }
+    hasBin: true
 
   brace-expansion@5.0.6:
     resolution:
@@ -2370,6 +2380,8 @@ snapshots:
   assertion-error@2.0.1: {}
 
   balanced-match@4.0.4: {}
+
+  bats@1.13.0: {}
 
   brace-expansion@5.0.6:
     dependencies:
