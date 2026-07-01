@@ -9,11 +9,9 @@ infrastructure/
   send-it/
     derive-changeset.ts             # used by /send-it (.claude/commands/send-it.md)
   scripts/                          # executable logic. one file = one purpose
-    ensure-yamllint.sh              # extracted from .github/workflows/ci.yml
-    ensure-actionlint.sh            # extracted from .github/workflows/ci.yml
-    ensure-bats.sh                  # extracted from .github/workflows/ci.yml
-    publish-via-raw-npm.sh          # release.yml npm publish step (bypasses pnpm)
-    publish-to-github-packages.sh   # release.yml publish-github-packages job (token auth, attested tarball)
+    ensure-yamllint.sh              # local yamllint install (CI runs via shared reusable-lint.yml)
+    ensure-actionlint.sh            # local actionlint install (CI runs via shared reusable-lint.yml)
+    ensure-bats.sh                  # local bats install (CI runs via shared reusable-build-test.yml)
   tests/
     *.test.ts                       # vitest, run via `pnpm test`
     *.bats                          # bats-core, run via `pnpm test:sh`
@@ -43,7 +41,7 @@ pnpm test:sh       # bats; locally prints install hint and exits 0 if bats is mi
 pnpm lint:sh       # shellcheck; same skip-with-hint contract locally
 ```
 
-CI runs all four unconditionally in the `infra` job.
+CI runs ShellCheck, Vitest and bats via the shared `reusable-build-test.yml` caller, and `validate:changelog` via the shared `reusable-lint.yml` caller — the old local `infra` job is gone.
 
 ## Adding a new script
 

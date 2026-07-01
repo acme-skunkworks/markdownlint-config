@@ -31,7 +31,7 @@
   "scripts": {
     "act:ci": "act pull_request -W .github/workflows/ci.yml --eventpath .github/act-events/pull_request.json",
     "act:list": "act --list",
-    "act:release:dry": "act push -W .github/workflows/release.yml",
+    "act:release:dry": "act push -W .github/workflows/pkg-release.yml",
     "changelog:finalise": "tsx infrastructure/scripts/finalise-changelog.ts",
     "clean": "rimraf node_modules",
     "format": "npx prettier --write .",
@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "bats": "1.13.0",
     "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
