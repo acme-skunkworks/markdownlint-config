@@ -1,0 +1,18 @@
+{
+  "ref": "main",
+  "skills": {
+    "changelog": "0.9.1",
+    "cleanup-repo": "0.4.0",
+    "commit": "0.1.0",
+    "documentation-and-adrs": null,
+    "find-skills": null,
+    "initialise-skills": "0.10.0",
+    "linear-sync": "0.3.3",
+    "preflight": "0.2.1",
+    "release-status": "0.1.1",
+    "send-it": "0.6.1",
+    "skill-creator": null,
+    "triage-pr": "0.5.2"
+  },
+  "source": "https://github.com/acme-skunkworks/agent-skills"
+}
