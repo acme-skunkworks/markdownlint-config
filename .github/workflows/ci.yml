@@ -19,8 +19,9 @@ permissions:
   contents: read
 
 # Wave 3 consumer (A-589 / A-593): lint + build-test run through the estate's
-# shared reusable workflows, SHA-pinned to v1.0.0 so Dependabot bumps them
-# together. This repo is config-only — no build step and no ESLint (its
+# shared reusable workflows, floating on the `@v1` major tag so non-breaking
+# releases arrive without a per-release Dependabot SHA bump (A-662 / A-672).
+# This repo is config-only — no build step and no ESLint (its
 # published artefact is `.markdownlint.jsonc`), so the lint job runs markdownlint
 # + YAML/actionlint + changelog validation, and build-test runs typecheck +
 # Vitest + ShellCheck + bats with `build: false`. The changelog-completeness gate
@@ -46,7 +47,7 @@ jobs:
 
   lint:
     needs: config
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-lint.yml@6cbcab65ca27950387b145888a68dd8e5e0d3ebe # v1.0.0
+    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-lint.yml@v1
     with:
       node-version-file: ${{ needs.config.outputs.node_version_file }}
       # Config-only package: no TypeScript/JS source to ESLint.
@@ -66,7 +67,7 @@ jobs:
 
   build-test:
     needs: config
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-build-test.yml@6cbcab65ca27950387b145888a68dd8e5e0d3ebe # v1.0.0
+    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-build-test.yml@v1
     with:
       node-version-file: ${{ needs.config.outputs.node_version_file }}
       # No build step — the published artefact is `.markdownlint.jsonc` itself.
