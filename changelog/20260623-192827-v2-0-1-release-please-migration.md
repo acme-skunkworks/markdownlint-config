@@ -7,14 +7,14 @@ merged_at: "2026-06-23T19:28:27Z"
 category: chore
 breaking: false
 issues:
-  - SK-379
+  - A-379
 ---
 
 ## Changed
 
 - Flipped the release pipeline from Changesets to **release-please**
   (`skip-changelog`) and added the dated `changelog/` subsystem plus the
-  infrastructure TS toolchain (SK-379).
+  infrastructure TS toolchain (A-379).
 - Rewrote `/send-it`, `CLAUDE.md`, and the ADRs for the release-please flow, and
   hardened checkout credential persistence and the pre-push bypass.
 
