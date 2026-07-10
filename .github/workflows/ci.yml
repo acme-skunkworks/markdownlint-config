@@ -106,7 +106,7 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           BASE_REF: ${{ github.base_ref }}
-        run: pnpm tsx infrastructure/scripts/check-changelog-completeness.ts
+        run: pnpm exec changelog-core check-completeness
 
   go-no-go:
     name: GO/NO GO
