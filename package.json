@@ -32,7 +32,6 @@
     "act:ci": "act pull_request -W .github/workflows/ci.yml --eventpath .github/act-events/pull_request.json",
     "act:list": "act --list",
     "act:release:dry": "act push -W .github/workflows/pkg-release.yml",
-    "changelog:finalise": "tsx infrastructure/scripts/finalise-changelog.ts",
     "clean": "rimraf node_modules",
     "format": "npx prettier --write .",
     "lint": "pnpm run lint:md",
@@ -49,7 +48,7 @@
     "test:sh": "bash -c 'if command -v bats >/dev/null 2>&1; then bats infrastructure/tests/*.bats; elif [ \"$(uname -s)\" = \"Darwin\" ]; then echo \"⚠️  bats not installed — skipping. Install: brew install bats-core\"; else echo \"⚠️  bats not installed — skipping. Install: apt-get install bats\"; fi'",
     "test:watch": "vitest",
     "tsc": "tsc --noEmit",
-    "validate:changelog": "tsx infrastructure/scripts/validate-changelog.ts"
+    "validate:changelog": "pnpm exec changelog-core validate"
   },
   "lint-staged": {
     "**/*": [
@@ -69,9 +68,9 @@
     ]
   },
   "devDependencies": {
+    "@acme-skunkworks/changelog-core": "^1.1.0",
     "@types/node": "^25.6.0",
     "bats": "1.13.0",
-    "gray-matter": "^4.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
     "markdownlint-cli2": "^0.22.1",

@@ -7,7 +7,7 @@ Workflow logic extracted from `.github/workflows/*.yml` plus shared dev-tooling 
 ```
 infrastructure/
   send-it/
-    derive-changeset.ts             # used by /send-it (.claude/commands/send-it.md)
+    derive-changeset.ts             # orphaned /send-it helper (slated for removal)
   scripts/                          # executable logic. one file = one purpose
     ensure-yamllint.sh              # local yamllint install (CI runs via shared reusable-lint.yml)
     ensure-actionlint.sh            # local actionlint install (CI runs via shared reusable-lint.yml)
@@ -17,6 +17,10 @@ infrastructure/
     *.bats                          # bats-core, run via `pnpm test:sh`
     fixtures/                       # static inputs shared by tests
 ```
+
+Changelog validate / enrich / finalise live in `@acme-skunkworks/changelog-core`
+(`pnpm exec changelog-core …`); post-merge write-back is
+`reusable-changelog-enrich.yml` (A-798 / A-821).
 
 ## Per-script language rule
 
@@ -45,15 +49,15 @@ CI runs ShellCheck, Vitest and bats via the shared `reusable-build-test.yml` cal
 
 ## Adding a new script
 
-Workflow-extracted tooling (wired from `.github/workflows/*.yml`) belongs under `infrastructure/scripts/`. Helpers used only by the `/send-it` Claude slash command (`.claude/commands/send-it.md`) belong under `infrastructure/send-it/`.
+Workflow-extracted tooling (wired from `.github/workflows/*.yml`) belongs under `infrastructure/scripts/`.
 
 1. Pick the language per the rule above.
-2. Write the file to `infrastructure/scripts/<name>.{ts,sh}` or `infrastructure/send-it/<name>.{ts,sh}` per the split above. For TS, export pure functions; for shell, keep it under ~20 lines.
+2. Write the file to `infrastructure/scripts/<name>.{ts,sh}`. For TS, export pure functions; for shell, keep it under ~20 lines.
 3. Write the test in `infrastructure/tests/<name>.{test.ts,bats}`. Tests should cover every meaningful branch, not just the happy path.
 4. `pnpm tsc` + `pnpm lint` + `pnpm test` + `pnpm test:sh` + `pnpm lint:sh` all green.
-5. Wire it from the workflow as a one-liner: `run: pnpm tsx infrastructure/scripts/<name>.ts` or `run: bash infrastructure/scripts/<name>.sh`. For `send-it/` modules, the slash command documents the chosen entrypoint (see `.claude/commands/send-it.md`).
+5. Wire it from the workflow as a one-liner: `run: pnpm tsx infrastructure/scripts/<name>.ts` or `run: bash infrastructure/scripts/<name>.sh`.
 
 ## Out of scope
 
-- Sharing this directory across repos (e.g. with `markdownlint-config`). Decision deferred — establish the pattern first.
+- Sharing this directory across repos. Decision deferred — establish the pattern first.
 - Husky hooks. They stay in `.husky/`; non-trivial logic _inside_ them can be extracted here and called via a thin shim. None qualifies today.

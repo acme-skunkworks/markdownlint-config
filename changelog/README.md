@@ -1,8 +1,8 @@
 # Changelog
 
-One Markdown file per change, capturing what changed and why. Entries are written by the `/send-it` slash command at PR-creation time and finalised by the release-orchestrator **inside the release-please release PR** (before that PR merges) — see [Lifecycle](#lifecycle).
+One Markdown file per change, capturing what changed and why. Entries are written by the `/send-it` slash command at PR-creation time and enriched post-merge in-repo via `pkg-release.yml`'s `changelog-enrich` job — see [Lifecycle](#lifecycle).
 
-This is the curated, per-change, machine-readable record — and, since the move to release-please (which runs with `skip-changelog`, A-379), the **only** changelog in the repo: there is no root `CHANGELOG.md`. These entries are also what `release.yml` sources the GitHub-release notes from. Each entry carries a `version` so it can be tied back to the published release it shipped in.
+This is the curated, per-change, machine-readable record — and, since the move to release-please (which runs with `skip-changelog`, A-379), the **only** changelog in the repo: there is no root `CHANGELOG.md`. These entries are also what `pkg-release.yml` sources the GitHub-release notes from. Each entry carries a `version` so it can be tied back to the published release it shipped in.
 
 ## File naming
 
@@ -19,24 +19,26 @@ changelog/YYYYMMDD-HHMMSS-<slug>.md
 ---
 title: "Concise summary of the change"
 release_note: "One-sentence user-facing summary" # optional; string or null
-version: "1.0.3" # semver; filled at release
+version: "1.0.3" # semver; filled at release finalise
 created_at: "2026-05-23T14:55:37Z" # set once; never overwritten
-merged_at: # filled at release (finalisation)
-branch: "asw-123-feature-slug" # stable lookup key for finalisation
-pr: # filled at release
-commit: # 7-char merge SHA; filled at release
-merge_strategy: # squash | merge | rebase; filled at release
+merged_at: # filled post-merge
+branch: "asw-123-feature-slug" # stable lookup key for enrichment
+pr: # filled post-merge
+commit: # 7-char merge SHA; filled post-merge
 author: "you@example.com"
 co_authors: []
 category: feature # feature | fix | chore | docs | refactor | perf
 breaking: false
 issues: ["A-123"] # Linear issue IDs
-stats: # filled at release (finalisation)
+stats: # filled post-merge
   files_changed: # integer
   loc_added: # integer
   loc_removed: # integer
+  commits: # integer; PR branch commits excluding merges
 ---
 ```
+
+> **Note:** older entries may still carry a `merge_strategy` field. New enrichment no longer writes it (A-802 / A-803).
 
 ### Differences from octavo's schema
 
@@ -95,12 +97,12 @@ Only include `Added` / `Changed` / `Fixed` headings that have entries.
 
 ## Lifecycle
 
-Two stages — and finalisation rides inside the release-please release PR, so there's no separate workflow and nothing pushes to `main`:
+Two stages — post-merge enrichment runs in-repo via `reusable-changelog-enrich.yml` on every push to `main` (A-798 / A-821):
 
 1. **Create or update an entry (PR-time):** run `/send-it` from a feature branch. It writes the entry with the PR-time fields (`title`, `release_note`, `created_at`, `branch`, `author`, `co_authors`, `category`, `breaking`, `issues`) and empty placeholders for the rest. The entry merges to `main` with the feature PR and waits.
-2. **Finalise (at release, inside the release PR):** the orchestrator runs `release-please release-pr` (which bumps `package.json` + `.release-please-manifest.json`) then `finalise-changelog.ts`. For every entry without a `version`, finalise resolves the merged PR from the `branch` field via `gh` — filling `merged_at`, `commit`, `merge_strategy`, `pr`, and `stats` (`files_changed`, `loc_added`, `loc_removed`) — stamps the just-bumped `version`, and rewrites Linear IDs to links. The orchestrator commits these edits into the release PR, which publishes through the normal flow.
+2. **Post-merge / release:** `pkg-release.yml`'s `changelog-enrich` job (`mode: finalise`) resolves the just-merged PR, fills `merged_at` / `commit` / `pr` / `stats` via `changelog-core enrich`, and stamps `version` via `changelog-core finalise` only when `package.json`'s version has no matching git tag (release-please cut). Write-back pushes only `changelog/**` as `road-runner-bot[bot]` (ADR 0004).
 
-**CI validation:** the `infra` job in `ci.yml` runs `pnpm validate:changelog` on every PR. Malformed entries fail the check. Run it locally with:
+**CI validation:** the shared lint lane runs `pnpm validate:changelog` on every PR. Malformed entries fail the check. Run it locally with:
 
 ```bash
 pnpm validate:changelog
