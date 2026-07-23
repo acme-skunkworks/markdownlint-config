@@ -1,21 +1,22 @@
 ---
-title: "Add commitlint pre-push range check"
+title: Add commitlint pre-push range check
 release_note:
 version:
-created_at: "2026-07-23T14:48:00Z"
-merged_at:
-branch: "a-1023-tier-2-fan-out-commitlint-pre-push"
-pr:
-commit:
-author: "rob@acmeskunkworks.io"
+created_at: '2026-07-23T14:48:00Z'
+merged_at: '2026-07-23T15:05:34Z'
+branch: a-1023-tier-2-fan-out-commitlint-pre-push
+pr: 47
+commit: cb8d016
+author: rob@acmeskunkworks.io
 co_authors: []
 category: chore
 breaking: false
-issues: ["A-1023"]
+issues:
+  - A-1023
 stats:
-  files_changed:
-  loc_added:
-  loc_removed:
+  files_changed: 6
+  loc_added: 726
+  loc_removed: 9
 ---
 
 ## Added
