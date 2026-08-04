@@ -54,12 +54,11 @@
   // re-disabled in protomolecule PR #345 over friction with untagged samples.
   "MD040": true,
 
-  // MD041 — Disabled. Fragment/partial markdown files (designed to be embedded
-  // into a larger document) don't always start with an H1. Forcing one breaks
-  // composition. Estate audit (A-929) found ~58 pamphleteer role entries that
-  // use `jobTitle` rather than `title:` in frontmatter, plus PR templates;
-  // enablement split to A-1199.
-  "MD041": false,
+  // MD041 — Require a first-line H1, or a frontmatter `title:` as an
+  // alternative (not itself an H1). Fragments with neither still fail;
+  // exclude via consumer `ignores` or disable-next-line. Estate audit:
+  // A-1199 (split from A-929).
+  "MD041": true,
 
   // MD044 — Proper-name capitalisation. Conservative list only: short format /
   // tool names (JSON, YAML, npm, ESLint, …) false-positive on filenames and

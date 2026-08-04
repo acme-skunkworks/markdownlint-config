@@ -60,8 +60,8 @@ Add to your `package.json`:
 
 Markdown is two things at once — the structural skeleton of a document (headings, lists, links, tables) and the prose that fills it. This config enforces the first and steps out of the way of the second:
 
-- **Structural rules are enabled.** Headings, list numbering, link references, table shape, blank-line conventions around fences and tables — all enforced. These are cheap to get right and the diff noise from violations is high.
-- **Prose rules are relaxed.** Line length, inline HTML/JSX, fence-language tags, and first-line-heading requirements are off. These create friction in real-world authoring (long URLs in tables, MDX components, plaintext CLI output, fragment files) without delivering proportional value.
+- **Structural rules are enabled.** Headings (first-line H1, or frontmatter `title:` as an alternative), list numbering, link references, table shape, blank-line conventions around fences and tables, and fence-language tags — all enforced. These are cheap to get right and the diff noise from violations is high.
+- **Prose rules are relaxed.** Line length and inline HTML/JSX are off. These create friction in real-world authoring (long URLs in tables, MDX components) without delivering proportional value.
 
 Each non-default decision in `.markdownlint.jsonc` carries an inline rationale — read it for the "why" before tweaking a rule downstream.
 
@@ -72,22 +72,27 @@ Built on `"default": true` (every markdownlint rule enabled at stock options) wi
 ### Configured rules
 
 - **MD003** — ATX-style headings (`# Heading`), not Setext (`Heading\n===`).
+- **MD004** — Unordered-list bullets use `-` only (matches Prettier).
 - **MD007** — Nested unordered lists indent by 2 spaces (matches Prettier).
 - **MD024** — Repeated heading text allowed across non-siblings (`siblings_only`) — changelogs and per-section API docs need this.
 - **MD029** — Ordered lists numbered sequentially (`1. 2. 3.`), not all-ones.
+- **MD035** — Thematic breaks are `---` only.
+- **MD044** — Proper-name capitalisation (conservative list; `code_blocks` off).
+- **MD046** — Code blocks must be fenced.
+- **MD048** — Fence style is backtick only.
+- **MD049** — Emphasis (italic) uses underscores.
+- **MD050** — Strong (bold) uses asterisks.
 
 ### Disabled rules
 
 - **MD013** (line length) — prose concern; editors handle wrapping.
 - **MD033** (inline HTML) — MDX embeds JSX routinely.
-- **MD040** (fence language) — friction with pseudo-code and CLI output samples.
-- **MD041** (first-line H1) — breaks fragment/partial files designed for embedding.
 
 ### Notably enabled (formerly disabled)
 
-These were off in v1.0 (carried over from `protomolecule`) and have been re-enabled — `markdownlint --fix` resolves all of them mechanically:
+These were off in v1.0 (carried over from `protomolecule`) and have been re-enabled:
 
-- **MD031** (blank lines around fences), **MD034** (bare URLs), **MD036** (emphasis-as-heading), **MD051** (link fragments — fragment resolution improved in `markdownlint` 0.40), **MD052/053** (reference link/image hygiene), **MD056/058** (table column count, blank lines around tables).
+- **MD031** (blank lines around fences), **MD034** (bare URLs), **MD036** (emphasis-as-heading), **MD040** (fence language — use `text` / `console` / `plaintext` for language-less samples), **MD041** (first-line H1, or frontmatter `title:`), **MD051** (link fragments — fragment resolution improved in `markdownlint` 0.40), **MD052/053** (reference link/image hygiene), **MD056/058** (table column count, blank lines around tables).
 
 ## 🛠️ Customization
 
@@ -98,7 +103,7 @@ Override specific rules by extending the configuration:
   "config": {
     "extends": "@acme-skunkworks/markdownlint-config",
     "MD013": { "line_length": 100 }, // Re-enable line length with a 100-char limit (off in base).
-    "MD041": true, // Re-enable first-line-H1 requirement (off in base — flip it on for top-level docs).
+    "MD041": false, // Opt out for repos full of embeddable fragments (on in base).
   },
 }
 ```
