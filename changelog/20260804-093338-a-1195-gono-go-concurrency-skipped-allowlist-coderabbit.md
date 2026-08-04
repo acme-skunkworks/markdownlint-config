@@ -21,8 +21,8 @@ stats:
 
 ## Changed
 
-**GO/NO GO concurrency ([A-1100](https://linear.app/acme-skunkworks/issue/A-1100) / [A-1195](https://linear.app/acme-skunkworks/issue/A-1195))** — set `cancel-in-progress: false` on `ci.yml` and `validate-pr-title.yml` so a superseded run cannot mint a false-red gate.
+**GO/NO GO concurrency ([A-1100](https://linear.app/rheged-studio/issue/A-1100) / [A-1195](https://linear.app/rheged-studio/issue/A-1195))** — set `cancel-in-progress: false` on `ci.yml` and `validate-pr-title.yml` so a superseded run cannot mint a false-red gate.
 
-**GO/NO GO verdict allowlist ([A-1103](https://linear.app/acme-skunkworks/issue/A-1103) / [A-1195](https://linear.app/acme-skunkworks/issue/A-1195))** — accept `skipped` only on `release-please--*` branches; everywhere else every needed job must report `success`.
+**GO/NO GO verdict allowlist ([A-1103](https://linear.app/rheged-studio/issue/A-1103) / [A-1195](https://linear.app/rheged-studio/issue/A-1195))** — accept `skipped` only on `release-please--*` branches; everywhere else every needed job must report `success`.
 
-**CodeRabbit walkthrough summary ([A-1102](https://linear.app/acme-skunkworks/issue/A-1102) / [A-1195](https://linear.app/acme-skunkworks/issue/A-1195))** — set `high_level_summary_in_walkthrough: true` so the high-level summary lands in the walkthrough comment instead of rewriting the PR description (and re-firing CI).
+**CodeRabbit walkthrough summary ([A-1102](https://linear.app/rheged-studio/issue/A-1102) / [A-1195](https://linear.app/rheged-studio/issue/A-1195))** — set `high_level_summary_in_walkthrough: true` so the high-level summary lands in the walkthrough comment instead of rewriting the PR description (and re-firing CI).

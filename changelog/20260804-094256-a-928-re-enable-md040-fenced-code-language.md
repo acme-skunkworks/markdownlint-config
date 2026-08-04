@@ -30,5 +30,5 @@ stats:
 ## Changed
 
 - Re-enabled MD040 with a rewritten rationale documenting the
-  `text` / `console` / `plaintext` convention ([A-928](https://linear.app/acme-skunkworks/issue/A-928)); bumped the audit date.
+  `text` / `console` / `plaintext` convention ([A-928](https://linear.app/rheged-studio/issue/A-928)); bumped the audit date.
 - Tagged the language-less tree listing in `infrastructure/README.md` as `text`.
