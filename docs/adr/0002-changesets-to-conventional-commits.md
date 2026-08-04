@@ -5,12 +5,12 @@
 - **Deciders:** Rob Easthope (sole maintainer of `@acme-skunkworks/markdownlint-config`)
 - **Supersedes:** [0001 — Migrate CI from GitHub Actions to CircleCI](./0001-migrate-ci-from-github-actions-to-circleci.md) (the CI question is settled by staying on GitHub Actions)
 - **Tracking issues:**
-  - [A-379](https://linear.app/acme-skunkworks/issue/A-379) — migrate markdownlint-config to full eslint-config release parity
-  - [A-371](https://linear.app/acme-skunkworks/issue/A-371) — switch eslint-config versioning from Changesets to release-please
-  - [A-376](https://linear.app/acme-skunkworks/issue/A-376) — adopt release-please in the orchestrator
+  - [A-379](https://linear.app/rheged-studio/issue/A-379) — migrate markdownlint-config to full eslint-config release parity
+  - [A-371](https://linear.app/rheged-studio/issue/A-371) — switch eslint-config versioning from Changesets to release-please
+  - [A-376](https://linear.app/rheged-studio/issue/A-376) — adopt release-please in the orchestrator
 - **Mirrors:** eslint-config's ADR 0002 (`changesets-to-conventional-commits`), the org-wide pattern this repo adopts.
 
-> **Amended (A-1176).** The squash-merge / “PR title is the version signal” framing for **feature** PRs below is **superseded** by the estate dual merge policy in [shared-agents-md ADR-0003](https://github.com/acme-skunkworks/shared-agents-md/blob/main/docs/adr/0003-dual-merge-policy.md) ([A-1176](https://linear.app/acme-skunkworks/issue/A-1176)): feature/ship PRs land as **merge commits**; release-please ranks Conventional Commits on `main` (A-824); Conventional PR titles stay CI-required but are no longer the sole post-merge bump signal for feature work; the orchestrator still **squash-merges** the release PR and fan-out stays squash. The body below remains the historical Changesets → release-please decision record.
+> **Amended (A-1176).** The squash-merge / “PR title is the version signal” framing for **feature** PRs below is **superseded** by the estate dual merge policy in [shared-agents-md ADR-0003](https://github.com/acme-skunkworks/shared-agents-md/blob/main/docs/adr/0003-dual-merge-policy.md) ([A-1176](https://linear.app/rheged-studio/issue/A-1176)): feature/ship PRs land as **merge commits**; release-please ranks Conventional Commits on `main` (A-824); Conventional PR titles stay CI-required but are no longer the sole post-merge bump signal for feature work; the orchestrator still **squash-merges** the release PR and fan-out stays squash. The body below remains the historical Changesets → release-please decision record.
 
 ## Context
 

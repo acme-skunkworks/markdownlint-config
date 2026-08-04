@@ -24,7 +24,7 @@ issues:
   it now packs into an isolated directory and asserts a single artifact.
 - Changelog validation accepts millisecond-precision ISO timestamps.
 
-_Backfilled entry ([A-815](https://linear.app/acme-skunkworks/issue/A-815) /
-[A-619](https://linear.app/acme-skunkworks/issue/A-619)): authored after the fact
+_Backfilled entry ([A-815](https://linear.app/rheged-studio/issue/A-815) /
+[A-619](https://linear.app/rheged-studio/issue/A-619)): authored after the fact
 to reconcile the changelog with the existing `v2.0.1` tag + GitHub Release. No
 changes to the published markdownlint preset itself — infrastructure only._
