@@ -146,8 +146,8 @@ Install the [markdownlint extension](https://marketplace.visualstudio.com/items?
 
 For detailed rule documentation, see:
 
-- [Markdownlint Rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
-- [Markdownlint CLI2](https://github.com/DavidAnson/markdownlint-cli2)
+- [markdownlint Rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
+- [markdownlint CLI2](https://github.com/DavidAnson/markdownlint-cli2)
 
 ## 📁 Package Structure
 

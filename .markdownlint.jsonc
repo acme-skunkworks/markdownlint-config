@@ -17,6 +17,10 @@
   // ATX reads better in raw markdown and is easier to manipulate programmatically.
   "MD003": { "style": "atx" },
 
+  // MD004 — Unordered-list bullets use `-` only (matches Prettier). Locks the
+  // default "consistent" option to a single canonical style estate-wide.
+  "MD004": { "style": "dash" },
+
   // MD007 — Nested unordered lists indent by 2 spaces. Matches Prettier's default,
   // so `markdownlint --fix` and `prettier --write` don't fight each other.
   "MD007": { "indent": 2 },
@@ -40,6 +44,10 @@
   // would churn whenever a new component is introduced. Trust the author.
   "MD033": false,
 
+  // MD035 — Thematic breaks are `---` only. Locks the default "consistent"
+  // option so `***` / `___` don't drift in.
+  "MD035": { "style": "---" },
+
   // MD040 — Require a language tag on every fenced code block. Pseudo-code,
   // verbatim CLI output, and other language-less samples use `text`, `console`,
   // or `plaintext`. Re-enabled after the Hecate comparison (A-928); previously
@@ -48,6 +56,36 @@
 
   // MD041 — Disabled. Fragment/partial markdown files (designed to be embedded
   // into a larger document) don't always start with an H1. Forcing one breaks
-  // composition.
+  // composition. Estate audit (A-929) found ~58 pamphleteer role entries that
+  // use `jobTitle` rather than `title:` in frontmatter, plus PR templates;
+  // enablement split to A-1199.
   "MD041": false,
+
+  // MD044 — Proper-name capitalisation. Conservative list only: short format /
+  // tool names (JSON, YAML, npm, ESLint, …) false-positive on filenames and
+  // package ids (`package.json`, `eslint-config`). code_blocks off for samples.
+  "MD044": {
+    "names": [
+      "GitHub",
+      "JavaScript",
+      "TypeScript",
+      "Node.js",
+      "markdownlint",
+      "Linear",
+    ],
+    "code_blocks": false,
+  },
+
+  // MD046 — Code blocks must be fenced (bans indented code blocks).
+  "MD046": { "style": "fenced" },
+
+  // MD048 — Fence style is backtick only (bans `~~~`).
+  "MD048": { "style": "backtick" },
+
+  // MD049 — Emphasis (italic) uses underscores: `_like this_`. Pairs with
+  // MD050 asterisk bold for unambiguous `_italic_` + `**bold**`.
+  "MD049": { "style": "underscore" },
+
+  // MD050 — Strong (bold) uses asterisks: `**like this**`.
+  "MD050": { "style": "asterisk" },
 }
