@@ -2,10 +2,10 @@
 title: Update Linear identity to Rheged Studio
 release_note: ''
 created_at: '2026-08-04T18:40:51Z'
-merged_at: ''
+merged_at: '2026-08-04T18:52:14Z'
 branch: a-1229-markdownlint-config-update-linearteamname
-pr:
-commit: ''
+pr: 58
+commit: b093fef
 author: rob@acmeskunkworks.io
 co_authors: []
 category: chore
@@ -13,9 +13,9 @@ breaking: false
 issues:
   - A-1229
 stats:
-  files_changed:
-  loc_added:
-  loc_removed:
+  files_changed: 21
+  loc_added: 59
+  loc_removed: 30
   commits:
 ---
 
