@@ -47,7 +47,7 @@ jobs:
   # Runs independently of `release` — both read the bumped version from the
   # committed package.json; no publish artifact is needed.
   changelog-enrich:
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-changelog-enrich.yml@a87a5ba1eaa9dea0b9fb87afebe47f1c92ea7455
+    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-changelog-enrich.yml@d842a4738dff69d14a7e1cae51b40450ffbef211
     with:
       mode: finalise
     permissions:
