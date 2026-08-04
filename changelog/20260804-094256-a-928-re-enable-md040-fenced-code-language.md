@@ -1,11 +1,11 @@
 ---
 title: Re-enable MD040 fenced-code-language requirement
 release_note: Fenced code blocks must declare a language tag; untagged samples use text, console, or plaintext.
-created_at: "2026-08-04T09:42:56Z"
-merged_at:
+created_at: '2026-08-04T09:42:56Z'
+merged_at: '2026-08-04T10:01:25Z'
 branch: a-928-re-enable-md040-fenced-code-language-the-one-tightening
-pr:
-commit:
+pr: 55
+commit: 0c9fc22
 merge_strategy:
 author: rob@acmeskunkworks.io
 co_authors: []
@@ -14,9 +14,9 @@ breaking: true
 issues:
   - A-928
 stats:
-  files_changed:
-  loc_added:
-  loc_removed:
+  files_changed: 3
+  loc_added: 43
+  loc_removed: 8
   commits:
 ---
 
