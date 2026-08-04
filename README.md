@@ -60,7 +60,7 @@ Add to your `package.json`:
 
 Markdown is two things at once — the structural skeleton of a document (headings, lists, links, tables) and the prose that fills it. This config enforces the first and steps out of the way of the second:
 
-- **Structural rules are enabled.** Headings (including first-line H1 / frontmatter `title:`), list numbering, link references, table shape, blank-line conventions around fences and tables, and fence-language tags — all enforced. These are cheap to get right and the diff noise from violations is high.
+- **Structural rules are enabled.** Headings (first-line H1, or frontmatter `title:` as an alternative), list numbering, link references, table shape, blank-line conventions around fences and tables, and fence-language tags — all enforced. These are cheap to get right and the diff noise from violations is high.
 - **Prose rules are relaxed.** Line length and inline HTML/JSX are off. These create friction in real-world authoring (long URLs in tables, MDX components) without delivering proportional value.
 
 Each non-default decision in `.markdownlint.jsonc` carries an inline rationale — read it for the "why" before tweaking a rule downstream.
