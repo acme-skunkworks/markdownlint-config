@@ -13,8 +13,8 @@ only add a rule here if it is true for **every** estate repo.
 ## Writing
 
 - Use **British English** spelling and grammar in human-facing prose (documentation, ADRs, commit
-  messages, PR titles and bodies): *colour*, *behaviour*, *organise*, *-ise*/*-yse* over
-  *-ize*/*-yze*, *licence* (noun) / *license* (verb).
+  messages, PR titles and bodies): _colour_, _behaviour_, _organise_, _-ise_/_-yse_ over
+  _-ize_/_-yze_, _licence_ (noun) / _license_ (verb).
 - This applies to prose written for humans — **not** to identifiers, dependency or package names,
   CSS `color`, CLI flags, config keys, environment variable names, or third-party API field
   names/values that mirror upstream. Leave those spelt as the code or upstream requires.
@@ -76,7 +76,7 @@ only add a rule here if it is true for **every** estate repo.
   `AGENTS.md` fan-outs, agent-skills re-syncs) — add the `skip-review` label so CodeRabbit skips it
   and the review quota is reserved for the PRs that actually change behaviour.
 - **Never label a behaviour change `skip-review`.** If a PR introduces or alters functionality, leave
-  it unlabelled so it gets reviewed. When unsure, don't label — a forgotten label errs towards *more*
+  it unlabelled so it gets reviewed. When unsure, don't label — a forgotten label errs towards _more_
   review, not less. The `skip-review` label must already exist in the target repo (bootstrapped per
   the estate rollout config); if it is absent, that is a provisioning gap — flag it rather than
   shipping the rollout silently reviewed, and leave creating the label to the rollout tooling / repo
