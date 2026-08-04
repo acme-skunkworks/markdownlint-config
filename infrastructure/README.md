@@ -4,7 +4,7 @@ Workflow logic extracted from `.github/workflows/*.yml` plus shared dev-tooling 
 
 ## Layout
 
-```
+```text
 infrastructure/
   send-it/
     derive-changeset.ts             # orphaned /send-it helper (slated for removal)

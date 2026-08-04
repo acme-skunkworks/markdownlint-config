@@ -1,13 +1,13 @@
 // @acme-skunkworks/markdownlint-config
 //
-// Philosophy: strict on structure (headings, lists, links, tables),
-// lenient on prose (line length, inline HTML, fence-language tags).
+// Philosophy: strict on structure (headings, lists, links, tables, fence
+// language tags), lenient on prose (line length, inline HTML).
 //
 // Rationale lives next to each non-default rule — keep them in sync.
 // `"default": true` enables every other rule with its stock options;
 // only non-default decisions are enumerated below.
 //
-// Audited 2026-05-11 against markdownlint-cli2 ^0.22.1 (markdownlint 0.40.0).
+// Audited 2026-08-04 against markdownlint-cli2 ^0.22.1 (markdownlint 0.40.0).
 // Consume via markdownlint-cli2 — its parser stack handles JSONC; bare
 // markdownlint with `JSON.parse` will reject the comments.
 {
@@ -40,10 +40,11 @@
   // would churn whenever a new component is introduced. Trust the author.
   "MD033": false,
 
-  // MD040 — Disabled. Fence-language tags are recommended but not required.
-  // Re-disabled in upstream protomolecule PR #345 after enforcement created
-  // friction with pseudo-code blocks and verbatim CLI output samples.
-  "MD040": false,
+  // MD040 — Require a language tag on every fenced code block. Pseudo-code,
+  // verbatim CLI output, and other language-less samples use `text`, `console`,
+  // or `plaintext`. Re-enabled after the Hecate comparison (A-928); previously
+  // re-disabled in protomolecule PR #345 over friction with untagged samples.
+  "MD040": true,
 
   // MD041 — Disabled. Fragment/partial markdown files (designed to be embedded
   // into a larger document) don't always start with an H1. Forcing one breaks
