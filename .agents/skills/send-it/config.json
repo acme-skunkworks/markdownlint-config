@@ -10,5 +10,6 @@
     "files",
     "publishConfig"
   ],
-  "changelog": true
+  "changelog": true,
+  "triage": true
 }
