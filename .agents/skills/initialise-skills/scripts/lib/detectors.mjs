@@ -142,18 +142,19 @@ export function createDetectors({ linearFacts = {}, repoRoot }) {
     // is required when capture is on (linearTeamName set) — prefer facts, else
     // flag needs-manual-input rather than writing a confident empty "no project".
     followUpLabel: () => ({ value: "" }),
-    followUpProject: () => {
-      const fromFacts = linearFacts.followUpProject;
-      if (typeof fromFacts === "string" && fromFacts.trim()) {
-        return { value: fromFacts.trim() };
-      }
+  followUpProject: () => {
+    const fromFacts = linearFacts.followUpProject;
+    if (typeof fromFacts === "string" && fromFacts.trim()) {
+      return { value: fromFacts.trim() };
+    }
 
-      if (linearFacts.linearTeamName) {
-        return null;
-      }
+    // Check if capture is active (linearTeamName is detectable)
+    if (detect("linearTeamName")) {
+      return null;
+    }
 
-      return { value: "" };
-    },
+    return { value: "" };
+  },
     followUpState: () => ({ value: "Backlog" }),
     // No repo signal; emit triage-pr's default-on human envelope (never null) so it
     // isn't flagged needs-manual-input — a later edit reads as drift and is kept.

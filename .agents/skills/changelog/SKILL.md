@@ -213,8 +213,8 @@ unavailable the default falls back to the full sweep.)
 This is the gate:
 
 ```bash
-node skills/changelog/scripts/preflight-changelog-ci.mjs   # optional: checks Node vs engines/.nvmrc, then pnpm install --frozen-lockfile
-node skills/changelog/scripts/validate-changelog.mjs       # validates frontmatter schema, filename format, field types, ISO timestamps, Breaking section, issue IDs
+node .agents/skills/changelog/scripts/preflight-changelog-ci.mjs   # optional: checks Node vs engines/.nvmrc, then pnpm install --frozen-lockfile
+node .agents/skills/changelog/scripts/validate-changelog.mjs       # validates frontmatter schema, filename format, field types, ISO timestamps, Breaking section, issue IDs
 ```
 
 `preflight-changelog-ci.mjs` is optional and pnpm-specific — skip it if the

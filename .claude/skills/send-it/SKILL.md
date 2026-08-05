@@ -405,9 +405,9 @@ Follow the [`changelog`](../changelog/SKILL.md) skill to author or update the en
    entry keeps `version` blank, as no release is cut for it). This includes `pr`: no
    step here writes it back after the PR opens; the post-merge enricher resolves it
    from the entry's `branch:`.
-3. Run the enrichment scripts: `node skills/changelog/scripts/set-affected-packages.mjs`
-   then `node skills/changelog/scripts/add-links.mjs`.
-4. **Validate:** `node skills/changelog/scripts/validate-changelog.mjs`. It must pass
+3. Run the enrichment scripts: `node .claude/skills/changelog/scripts/set-affected-packages.mjs`
+   then `node .claude/skills/changelog/scripts/add-links.mjs`.
+4. **Validate:** `node .claude/skills/changelog/scripts/validate-changelog.mjs`. It must pass
    before committing — if it fails, surface the error and abort; don't auto-fix.
 
 ### Step 8: Commit the changelog entry and push

@@ -148,7 +148,8 @@ export function createDetectors({ linearFacts = {}, repoRoot }) {
         return { value: fromFacts.trim() };
       }
 
-      if (linearFacts.linearTeamName) {
+      // Check if capture is active (linearTeamName is detectable)
+      if (detect("linearTeamName")) {
         return null;
       }
 
