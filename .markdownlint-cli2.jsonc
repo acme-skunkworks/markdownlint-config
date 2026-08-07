@@ -8,5 +8,6 @@
     "!**/dist/**",
     "!.agents/skills/**",
     "!.claude/skills/**",
+    "!AGENTS.md",
   ],
 }
