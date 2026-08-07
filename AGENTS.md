@@ -7,7 +7,7 @@
 # Shared agent instructions
 
 Estate-wide guidance for AI coding agents (Claude Code, Cursor, cloud agents) working in the
-**ACME Skunkworks** estate. Repo-specific guidance lives in each repo's own `CLAUDE.md`, not here —
+**Rheged Studio** estate. Repo-specific guidance lives in each repo's own `CLAUDE.md`, not here —
 only add a rule here if it is true for **every** estate repo.
 
 ## Writing
@@ -24,12 +24,14 @@ only add a rule here if it is true for **every** estate repo.
 
 ## Estate identity
 
-- The Linear team is **ACME Skunkworks**; its team key is **`A`** and the workspace slug is
-  **`acme-skunkworks`**.
-- Resolve Linear MCP calls by team **name** ("ACME Skunkworks"), **not** by key — the key has been
+- The Linear team is **Rheged Studio**; its team key is **`A`** and the workspace slug is
+  **`rheged-studio`**.
+- Resolve Linear MCP calls by team **name** ("Rheged Studio"), **not** by key — the key has been
   renamed repeatedly and older references are stale.
 - Issue IDs are **`A-<number>`**. Keep **one Linear project per repo** — don't split a single repo's
-  work across parallel projects.
+  work across parallel projects. When creating a Linear issue (`save_issue` with no `id`, or the UI),
+  always set `project` to that repo's estate project. Never leave project empty; if the correct
+  project is unknown, resolve it (e.g. `list_projects`) or ask — do not file project-less.
 
 ## Branches
 
@@ -39,6 +41,17 @@ only add a rule here if it is true for **every** estate repo.
   ID prefix.
 - **Branch from `main`**: check out and pull `main` first, then create the branch — not from
   whatever branch the session happened to start on.
+
+## Linear issue lifecycle
+
+- As soon as a session is tied to a Linear issue ID (the user names it, the branch carries it, or
+  you identify it) — **including Plan mode / planning-only** — set that issue to **In Progress** via
+  the Linear MCP or `/linear-sync`. Do **not** wait for a branch or PR.
+- The transition is idempotent: skip if the issue is already In Progress or further along.
+- Do **not** skip In Progress just because a later PR will advance the status.
+- When a PR opens or updates via `/send-it`, linked issues move to **In Review** (send-it /
+  linear-sync handles this).
+- On merge, Linear's GitHub integration moves issues to **Done** — do **not** set Done manually.
 
 ## Commits, PRs & releases
 
