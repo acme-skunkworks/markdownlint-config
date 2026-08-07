@@ -17,7 +17,8 @@ stats:
   files_changed: 3
   loc_added: 43
   loc_removed: 8
-  commits:
+  commits: 2
+version: 3.0.0
 ---
 
 ## Breaking
