@@ -1,5 +1,5 @@
 {
-  "name": "@acme-skunkworks/markdownlint-config",
+  "name": "@rheged-studio/markdownlint-config",
   "version": "3.0.1",
   "description": "Shared markdownlint configuration for consistent Markdown formatting",
   "keywords": [
