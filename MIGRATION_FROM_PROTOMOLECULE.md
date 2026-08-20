@@ -43,10 +43,10 @@ The legacy `@robeasthope/markdownlint-config` package on npm has its own Trusted
 | ---------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------- |
 | `name`                       | `@robeasthope/markdownlint-config`                    | `@acme-skunkworks/markdownlint-config`                                            |
 | `version`                    | `1.1.1`                                               | `1.0.0` _(after `pnpm changeset version` consumed the rename changeset)_          |
-| `repository.url`             | `https://github.com/RobEasthope/protomolecule.git`    | `https://github.com/rheged-studio/markdownlint-config.git`                      |
+| `repository.url`             | `https://github.com/RobEasthope/protomolecule.git`    | `https://github.com/rheged-studio/markdownlint-config.git`                        |
 | `repository.directory`       | `packages/markdownlint-config`                        | _(dropped)_                                                                       |
-| `homepage`                   | `https://github.com/RobEasthope/protomolecule#readme` | `https://github.com/rheged-studio/markdownlint-config#readme`                   |
-| `bugs.url`                   | `https://github.com/RobEasthope/protomolecule/issues` | `https://github.com/rheged-studio/markdownlint-config/issues`                   |
+| `homepage`                   | `https://github.com/RobEasthope/protomolecule#readme` | `https://github.com/rheged-studio/markdownlint-config#readme`                     |
+| `bugs.url`                   | `https://github.com/RobEasthope/protomolecule/issues` | `https://github.com/rheged-studio/markdownlint-config/issues`                     |
 | `packageManager`             | _(not set; inherited from monorepo root)_             | `pnpm@10.33.0`                                                                    |
 | `engines.node`               | _(not set)_                                           | `>=22`                                                                            |
 | `scripts.prepare`            | _(not present)_                                       | `husky`                                                                           |
