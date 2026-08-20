@@ -10,7 +10,7 @@
   - [A-376](https://linear.app/rheged-studio/issue/A-376) — adopt release-please in the orchestrator
 - **Mirrors:** eslint-config's ADR 0002 (`changesets-to-conventional-commits`), the org-wide pattern this repo adopts.
 
-> **Amended (A-1176).** The squash-merge / “PR title is the version signal” framing for **feature** PRs below is **superseded** by the estate dual merge policy in [shared-agents-md ADR-0003](https://github.com/acme-skunkworks/shared-agents-md/blob/main/docs/adr/0003-dual-merge-policy.md) ([A-1176](https://linear.app/rheged-studio/issue/A-1176)): feature/ship PRs land as **merge commits**; release-please ranks Conventional Commits on `main` (A-824); Conventional PR titles stay CI-required but are no longer the sole post-merge bump signal for feature work; the orchestrator still **squash-merges** the release PR and fan-out stays squash. The body below remains the historical Changesets → release-please decision record.
+> **Amended (A-1176).** The squash-merge / “PR title is the version signal” framing for **feature** PRs below is **superseded** by the estate dual merge policy in [shared-agents-md ADR-0003](https://github.com/rheged-studio/shared-agents-md/blob/main/docs/adr/0003-dual-merge-policy.md) ([A-1176](https://linear.app/rheged-studio/issue/A-1176)): feature/ship PRs land as **merge commits**; release-please ranks Conventional Commits on `main` (A-824); Conventional PR titles stay CI-required but are no longer the sole post-merge bump signal for feature work; the orchestrator still **squash-merges** the release PR and fan-out stays squash. The body below remains the historical Changesets → release-please decision record.
 
 ## Context
 
@@ -49,7 +49,7 @@ The published artifact is unchanged: `.markdownlint.jsonc` itself (no build step
 
 ## References
 
-- eslint-config ADR 0002 (the canonical pattern): <https://github.com/acme-skunkworks/eslint-config/blob/main/docs/adr/0002-changesets-to-conventional-commits.md>
+- eslint-config ADR 0002 (the canonical pattern): <https://github.com/rheged-studio/eslint-config/blob/main/docs/adr/0002-changesets-to-conventional-commits.md>
 - release-please: <https://github.com/googleapis/release-please>
 - Conventional Commits: <https://www.conventionalcommits.org/>
 - npm Trusted Publishers: <https://docs.npmjs.com/trusted-publishers/>

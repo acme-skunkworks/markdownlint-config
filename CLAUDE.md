@@ -51,7 +51,7 @@ Node 22 required (`.nvmrc`, `engines.node: ">=22"`, `engine-strict=true` in `.np
 ## Agent skills
 
 The shipping and housekeeping commands are provided by the shared
-[`@acme-skunkworks/agent-skills`](https://github.com/acme-skunkworks/agent-skills)
+[`@acme-skunkworks/agent-skills`](https://github.com/rheged-studio/agent-skills)
 bundles, installed via [skills.sh](https://skills.sh) under `.claude/skills/`
 (and mirrored to `.agents/skills/` for Cursor). They replace the previous bespoke
 `.claude/commands/send-it.md`:
