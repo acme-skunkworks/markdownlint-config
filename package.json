@@ -1,6 +1,6 @@
 {
   "name": "@acme-skunkworks/markdownlint-config",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Shared markdownlint configuration for consistent Markdown formatting",
   "keywords": [
     "markdownlint",
