@@ -37,13 +37,13 @@ permissions:
 # estate ruleset.
 jobs:
   config:
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-load-repo-config.yml@v1
+    uses: rheged-studio/shared-workflows/.github/workflows/reusable-load-repo-config.yml@v1
     permissions:
       contents: read
 
   lint:
     needs: config
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-lint.yml@v1
+    uses: rheged-studio/shared-workflows/.github/workflows/reusable-lint.yml@v1
     with:
       node-version-file: ${{ needs.config.outputs.node_version_file }}
       # Config-only package: no TypeScript/JS source to ESLint.
@@ -63,7 +63,7 @@ jobs:
 
   build-test:
     needs: config
-    uses: acme-skunkworks/shared-workflows/.github/workflows/reusable-build-test.yml@v1
+    uses: rheged-studio/shared-workflows/.github/workflows/reusable-build-test.yml@v1
     with:
       node-version-file: ${{ needs.config.outputs.node_version_file }}
       # No build step — the published artefact is `.markdownlint.jsonc` itself.

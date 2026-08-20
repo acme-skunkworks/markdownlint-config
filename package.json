@@ -10,13 +10,13 @@
     "code-quality",
     "style-guide"
   ],
-  "homepage": "https://github.com/acme-skunkworks/markdownlint-config#readme",
+  "homepage": "https://github.com/rheged-studio/markdownlint-config#readme",
   "bugs": {
-    "url": "https://github.com/acme-skunkworks/markdownlint-config/issues"
+    "url": "https://github.com/rheged-studio/markdownlint-config/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/acme-skunkworks/markdownlint-config.git"
+    "url": "https://github.com/rheged-studio/markdownlint-config.git"
   },
   "license": "MIT",
   "author": {
