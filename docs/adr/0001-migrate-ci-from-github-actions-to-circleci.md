@@ -84,7 +84,7 @@ Executed only after this ADR is marked Accepted. Steps are ordered to keep the p
 ### Phase 0 — Prerequisites (out-of-band, before any code changes)
 
 1. **Create CircleCI account.** Sign up, install the GitHub App on the `acme-skunkworks` org, add `markdownlint-config` as a project.
-2. **Record the UUIDs.** From CircleCI's web UI: Organization ID (Organization Settings → Overview), Project ID (Project Settings → Overview), Pipeline definition ID (Project Settings → Project Setup). Also note the VCS origin (`github.com/acme-skunkworks/markdownlint-config`).
+2. **Record the UUIDs.** From CircleCI's web UI: Organization ID (Organization Settings → Overview), Project ID (Project Settings → Overview), Pipeline definition ID (Project Settings → Project Setup). Also note the VCS origin (`github.com/rheged-studio/markdownlint-config`).
 3. **Confirm project-level settings.** Enable "Only build pull requests" (Project Settings → Advanced). Enable "Auto-cancel redundant workflows" if desired — note that `main` pushes are exempt by design.
 
 ### Phase 1 — Canary package validation (de-risk)
