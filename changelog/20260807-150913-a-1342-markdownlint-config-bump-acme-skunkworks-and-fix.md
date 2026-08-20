@@ -1,7 +1,7 @@
 ---
 title: Bump changelog-core and commitlint-config
 release_note: ""
-version:
+version: 3.0.1
 created_at: "2026-08-07T15:09:13Z"
 merged_at: "2026-08-11T13:04:11Z"
 branch: a-1342-markdownlint-config-bump-acme-skunkworks-and-fix-lint-fallout
@@ -17,7 +17,7 @@ stats:
   files_changed: 3
   loc_added: 42
   loc_removed: 12
-  commits:
+  commits: 2
 ---
 
 ## Changed

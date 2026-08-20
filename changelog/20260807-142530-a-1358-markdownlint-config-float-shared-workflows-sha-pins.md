@@ -1,7 +1,7 @@
 ---
 title: Float shared-workflows SHA pins to @v1
 release_note: ""
-version:
+version: 3.0.1
 created_at: "2026-08-07T14:25:30Z"
 merged_at: "2026-08-11T13:04:34Z"
 branch: a-1358-markdownlint-config-float-shared-workflows-sha-pins-to-v1
@@ -17,6 +17,7 @@ stats:
   loc_added: 25
   loc_removed: 2
   files_changed: 3
+  commits: 2
 ---
 
 ## Changed
