@@ -5,7 +5,7 @@
 - **Status:** Superseded by 0002
 - **Date:** 2026-05-12
 - **Last research pass:** 2026-05-12 (CircleCI + npm TP docs)
-- **Deciders:** Rob Easthope (sole maintainer of `@acme-skunkworks/markdownlint-config`)
+- **Deciders:** Rob Easthope (sole maintainer of `@rheged-studio/markdownlint-config`)
 - **Tracking issues:**
   - [A-150](https://linear.app/goose-and-hobbes/issue/A-150) — origin POC issue (release-only)
   - [A-154](https://linear.app/goose-and-hobbes/issue/A-154) — expanded scope (all CI to CircleCI, Claude carve-out)
@@ -13,7 +13,7 @@
 
 ## Context
 
-The npm publish flow for `@acme-skunkworks/markdownlint-config` uses OIDC Trusted Publishing on GitHub Actions and currently emits a provenance attestation. [A-149](https://linear.app/goose-and-hobbes/issue/A-149) tracks an eight-plus-iteration debugging effort against that flow without convergence on root cause. Each iteration requires pushing a workflow change, waiting for the GitHub Actions run, and reading logs after the fact — there is no laptop-side reproduction.
+The npm publish flow for `@rheged-studio/markdownlint-config` uses OIDC Trusted Publishing on GitHub Actions and currently emits a provenance attestation. [A-149](https://linear.app/goose-and-hobbes/issue/A-149) tracks an eight-plus-iteration debugging effort against that flow without convergence on root cause. Each iteration requires pushing a workflow change, waiting for the GitHub Actions run, and reading logs after the fact — there is no laptop-side reproduction.
 
 [A-150](https://linear.app/goose-and-hobbes/issue/A-150) was opened to evaluate CircleCI as an alternative, motivated by `circleci local execute` (which runs single jobs in Docker on the developer machine) and by the hypothesis that the npm-side TP rejection might be specific to how GitHub Actions presents OIDC claims. Subsequent scope expansion broadens the question from "CircleCI for the release pipeline" to "CircleCI for all CI in this repo" — the scope of this ADR.
 
@@ -83,7 +83,7 @@ Executed only after this ADR is marked Accepted. Steps are ordered to keep the p
 
 ### Phase 0 — Prerequisites (out-of-band, before any code changes)
 
-1. **Create CircleCI account.** Sign up, install the GitHub App on the `acme-skunkworks` org, add `markdownlint-config` as a project.
+1. **Create CircleCI account.** Sign up, install the GitHub App on the `rheged-studio` org, add `markdownlint-config` as a project.
 2. **Record the UUIDs.** From CircleCI's web UI: Organization ID (Organization Settings → Overview), Project ID (Project Settings → Overview), Pipeline definition ID (Project Settings → Project Setup). Also note the VCS origin (`github.com/rheged-studio/markdownlint-config`).
 3. **Confirm project-level settings.** Enable "Only build pull requests" (Project Settings → Advanced). Enable "Auto-cancel redundant workflows" if desired — note that `main` pushes are exempt by design.
 
@@ -93,8 +93,8 @@ Per finding (1), there is no parallel TP mapping path. The canary approach is re
 
 **Pre-flight:** verify the status of [npm/cli#8976](https://github.com/npm/cli/issues/8976) before starting Phase 1. If still open with no workaround, the OIDC publish path for scoped packages may not work on CircleCI either (the root cause is in the npm CLI, not in `changesets/action`) — escalate before proceeding.
 
-1. **Publish a canary package.** Manually publish `@acme-skunkworks/markdownlint-config-canary` (a stripped-down copy or a placeholder) to npm using the existing manual bootstrap recipe in `CLAUDE.md`. This creates a package whose TP mapping can be freely edited without affecting `@acme-skunkworks/markdownlint-config`.
-2. **Configure CircleCI TP for the canary.** On `npmjs.com/package/@acme-skunkworks/markdownlint-config-canary/access`, add a CircleCI Trusted Publisher mapping with the UUIDs from step 2.
+1. **Publish a canary package.** Manually publish `@rheged-studio/markdownlint-config-canary` (a stripped-down copy or a placeholder) to npm using the existing manual bootstrap recipe in `CLAUDE.md`. This creates a package whose TP mapping can be freely edited without affecting `@rheged-studio/markdownlint-config`.
+2. **Configure CircleCI TP for the canary.** On `npmjs.com/package/@rheged-studio/markdownlint-config-canary/access`, add a CircleCI Trusted Publisher mapping with the UUIDs from step 2.
 3. **Build the `.circleci/config.yml`** on a feature branch. Two workflows, three jobs:
    - **Workflow `ci`** (trigger: pull requests via the "Only build pull requests" project setting). Branch filters skip `changeset-release/*`. Jobs:
      - `lint` — installs deps via `circleci/node` orb (`pkg-manager: pnpm`), runs `pnpm run lint`.
@@ -122,7 +122,7 @@ Per finding (1), there is no parallel TP mapping path. The canary approach is re
 
 ### Phase 2 — Production cutover
 
-1. **Switch the production package's TP mapping** from GitHub Actions to CircleCI on `npmjs.com/package/@acme-skunkworks/markdownlint-config/access`. The mapping is single-active per finding (1), so this is the irreversible-during-cutover step. Rollback is "edit the mapping back to GitHub Actions" — quick, but not atomic.
+1. **Switch the production package's TP mapping** from GitHub Actions to CircleCI on `npmjs.com/package/@rheged-studio/markdownlint-config/access`. The mapping is single-active per finding (1), so this is the irreversible-during-cutover step. Rollback is "edit the mapping back to GitHub Actions" — quick, but not atomic.
 2. **Disable the GHA `release.yml`** workflow file: rename to `release.yml.disabled` rather than delete (kept for one release cycle as readable rollback documentation).
 3. **Land the new `.circleci/config.yml`** on `main` (merged from the feature branch).
 4. **Land a real changeset** on the production package and observe end-to-end: version-PR opens on CircleCI → merge → publish runs on CircleCI → npm `latest` updates → GitHub Release created.
@@ -130,7 +130,7 @@ Per finding (1), there is no parallel TP mapping path. The canary approach is re
 ### Phase 3 — Cleanup
 
 1. **Remove the disabled workflow files.** Delete `release.yml.disabled` and `ci.yml`. Retain `claude.yml` and `claude-code-review.yml`.
-2. **Tear down the canary package.** `npm deprecate @acme-skunkworks/markdownlint-config-canary "Canary package — used to validate CircleCI TP migration, no longer needed"`.
+2. **Tear down the canary package.** `npm deprecate @rheged-studio/markdownlint-config-canary "Canary package — used to validate CircleCI TP migration, no longer needed"`.
 3. **Update documentation.** Rewrite the "Release workflow" section in `CLAUDE.md` to reflect the CircleCI flow. Update `MIGRATION_FROM_PROTOMOLECULE.md` where it references GHA workflows by name. Update the husky `pre-push` hook's bot-identity allowlist to recognise the CircleCI bot's git committer name (TBD until Phase 1 step 3 — likely the GitHub PAT's owner identity, configurable).
 
 ## Operational notes / known gotchas
@@ -163,7 +163,7 @@ These are facts that came out of the research and don't fit cleanly under any si
 - `circleci local execute` shortens the feedback loop for the class of failure that has made A-149 painful, even with its single-job/no-secrets/no-OIDC limitations.
 - The two-job split (`version-pr` / `publish`) is what the Changesets community recommends even for GitHub Actions users on OIDC, and it tightens the trust scope per job.
 - Free-tier cost is zero for this repo.
-- The custom shell-script driver is forkable into other `acme-skunkworks` packages later if the migration succeeds.
+- The custom shell-script driver is forkable into other `rheged-studio` packages later if the migration succeeds.
 
 **Negative:**
 

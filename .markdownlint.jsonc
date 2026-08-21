@@ -1,4 +1,4 @@
-// @acme-skunkworks/markdownlint-config
+// @rheged-studio/markdownlint-config
 //
 // Philosophy: strict on structure (headings, lists, links, tables, fence
 // language tags), lenient on prose (line length, inline HTML).

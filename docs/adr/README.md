@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-This directory records architectural and infrastructure decisions for `@acme-skunkworks/markdownlint-config`.
+This directory records architectural and infrastructure decisions for `@rheged-studio/markdownlint-config`.
 
 ## Convention
 
