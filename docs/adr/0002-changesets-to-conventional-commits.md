@@ -2,7 +2,7 @@
 
 - **Status:** Accepted; **Amended** 2026-08-03
 - **Date:** 2026-06-23
-- **Deciders:** Rob Easthope (sole maintainer of `@acme-skunkworks/markdownlint-config`)
+- **Deciders:** Rob Easthope (sole maintainer of `@acme-studio/markdownlint-config`)
 - **Supersedes:** [0001 — Migrate CI from GitHub Actions to CircleCI](./0001-migrate-ci-from-github-actions-to-circleci.md) (the CI question is settled by staying on GitHub Actions)
 - **Tracking issues:**
   - [A-379](https://linear.app/rheged-studio/issue/A-379) — migrate markdownlint-config to full eslint-config release parity
@@ -14,7 +14,7 @@
 
 ## Context
 
-`@acme-skunkworks/markdownlint-config` versioned releases with [Changesets](https://github.com/changesets/changesets): contributors wrote a `.changeset/*.md` file declaring the bump, and `changesets/action` opened a "version packages" PR and published on merge. This worked, but the wider `acme-skunkworks` estate (eslint-config, agent-skills, …) is standardising on **release-please** driven by **Conventional Commits**, so that a single private **release-orchestrator** can drive every repo's releases on one path (a `matrix.repo` running `release-please` under `road-runner-bot`).
+`@acme-studio/markdownlint-config` versioned releases with [Changesets](https://github.com/changesets/changesets): contributors wrote a `.changeset/*.md` file declaring the bump, and `changesets/action` opened a "version packages" PR and published on merge. This worked, but the wider `acme-studio` estate (eslint-config, agent-skills, …) is standardising on **release-please** driven by **Conventional Commits**, so that a single private **release-orchestrator** can drive every repo's releases on one path (a `matrix.repo` running `release-please` under `road-runner-bot`).
 
 Keeping this repo on Changesets while its siblings move to release-please would create a **mixed-state estate**: the orchestrator would need two code paths, and a contributor moving between repos would face two different release rituals. Worse, a half-migrated repo (some PRs assuming Changesets, others release-please) has no coherent "what bumps the version?" answer during the window.
 
