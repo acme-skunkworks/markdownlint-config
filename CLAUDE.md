@@ -10,7 +10,7 @@ repo-specific guidance follows below.
 
 ## Repo
 
-Standalone home for `@rheged-studio/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration, published from this repo via release-please (Conventional Commits — A-379). **The published artifact is `.markdownlint.jsonc` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSONC directly via `markdownlint-cli2`, whose parser stack handles the inline per-rule rationale comments. Bare `markdownlint` with `JSON.parse` would reject the comments — call this out if/when a non-cli2 consumer surfaces.
+Standalone home for `@rheged-studio/markdownlint-config` (extracted from `RobEasthope/protomolecule` — see `MIGRATION_FROM_PROTOMOLECULE.md`). Single shared markdownlint configuration, published from this repo via release-please (Conventional Commits — A-379). **The published artefact is `.markdownlint.jsonc` itself** — there is no build step, no compiled output, no `dist/`. Consumers extend the JSONC directly via `markdownlint-cli2`, whose parser stack handles the inline per-rule rationale comments. Bare `markdownlint` with `JSON.parse` would reject the comments — call this out if/when a non-cli2 consumer surfaces.
 
 There _is_ a TypeScript toolchain in the repo (`infrastructure/` — the dated-changelog tooling), but it is **dev-only**: typechecked with `tsc --noEmit`, tested with vitest, and never published. It does not change the shippable surface.
 
