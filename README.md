@@ -1,15 +1,15 @@
-# @acme-studio/markdownlint-config
+# @rheged-studio/markdownlint-config
 
 Shared markdownlint configuration for consistent Markdown formatting across projects.
 
 ## 📦 Installation
 
 ```bash
-npm install --save-dev @acme-studio/markdownlint-config
+npm install --save-dev @rheged-studio/markdownlint-config
 # or
-pnpm add -D @acme-studio/markdownlint-config
+pnpm add -D @rheged-studio/markdownlint-config
 # or
-yarn add -D @acme-studio/markdownlint-config
+yarn add -D @rheged-studio/markdownlint-config
 ```
 
 ## 🚀 Usage
@@ -21,7 +21,7 @@ Create a `.markdownlint-cli2.jsonc` file in your project root:
 ```jsonc
 {
   "config": {
-    "extends": "@acme-studio/markdownlint-config",
+    "extends": "@rheged-studio/markdownlint-config",
   },
   "globs": ["**/*.{md,mdx}", "!**/node_modules/**", "!**/dist/**"],
 }
@@ -33,7 +33,7 @@ Create or update `.markdownlint.json`:
 
 ```json
 {
-  "extends": "@acme-studio/markdownlint-config"
+  "extends": "@rheged-studio/markdownlint-config"
 }
 ```
 
@@ -47,7 +47,7 @@ Add to your `package.json`:
 {
   "markdownlint-cli2": {
     "config": {
-      "extends": "@acme-studio/markdownlint-config"
+      "extends": "@rheged-studio/markdownlint-config"
     },
     "globs": ["**/*.{md,mdx}"]
   }
@@ -101,7 +101,7 @@ Override specific rules by extending the configuration:
 ```jsonc
 {
   "config": {
-    "extends": "@acme-studio/markdownlint-config",
+    "extends": "@rheged-studio/markdownlint-config",
     "MD013": { "line_length": 100 }, // Re-enable line length with a 100-char limit (off in base).
     "MD041": false, // Opt out for repos full of embeddable fragments (on in base).
   },
