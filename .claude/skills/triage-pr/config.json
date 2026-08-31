@@ -12,7 +12,7 @@
     "A"
   ],
   "followUpLabel": "",
-  "followUpProject": "",
+  "followUpProject": "Follow-up issues",
   "followUpState": "Backlog",
   "deferNonBlocking": true,
   "humanEnvelope": true,
